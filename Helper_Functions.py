@@ -35,6 +35,7 @@ def calculate_valloss(model, criterion, valloader, device):
 
     with torch.no_grad():
         n_batches = 0
+        loss = 0
         for i, data in enumerate(valloader, 0):
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
@@ -43,7 +44,7 @@ def calculate_valloss(model, criterion, valloader, device):
 
             outputs = model(inputs)
 
-            loss = criterion(outputs, labels)
+            loss += criterion(outputs, labels)
             n_batches += 1
 
     model.train()

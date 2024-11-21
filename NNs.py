@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 from torch import nn
 from torch.utils.data import random_split
 import torch.nn.functional as F
+import numpy as np
 
 class CNN(nn.Module):
     
@@ -156,12 +157,31 @@ class PrintLayer(nn.Module):
         print(x.shape)
         return x
 
-def init_weights(m):
-    if isinstance(m, nn.Linear):
-        torch.nn.init.xavier_uniform_(m.weight)
-        m.bias.data.fill_(0.00)
-    
 
+
+#def init_weights(m, generator=np.random.default_rng(0)):
+    #bias_val = generator.uniform(-0.05, 0.05)
+    #print(bias_val)
+
+    #if isinstance(m, nn.Linear):
+        #torch.nn.init.xavier_uniform_(m.weight)
+        #m.bias.data.fill_(bias_val)
+    
+def init_weights(m, ):
+    bias_val = torch.FloatTensor(1).uniform_(-0.05, 0.05)[0]
+
+    #print(bias_val)
+
+    if isinstance(m, nn.Linear):
+        print('here')
+        torch.nn.init.xavier_uniform_(m.weight)
+        m.bias.data.fill_(bias_val)
+
+    if isinstance(m, nn.Conv2d):
+        print(bias_val)
+        #print('bruh')
+        torch.nn.init.xavier_uniform_(m.weight, 10)
+        m.bias.data.fill_(bias_val)
 
 
 class Blur(nn.Module):

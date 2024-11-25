@@ -6,7 +6,7 @@ from torch.utils.data import random_split
 import torch.nn.functional as F
 import numpy as np
 
-class CNN(nn.Module, xavier_scale=1):
+class CNN(nn.Module):
 
     
     def __init__(self):

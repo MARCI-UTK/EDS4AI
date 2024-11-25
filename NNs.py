@@ -87,13 +87,13 @@ class CNN(nn.Module):
 
         self.LinLayer1 = torch.nn.Sequential(
             nn.Conv2d(192, 192, 1),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
         )
 
         self.LinLayer2 = torch.nn.Sequential(
             nn.Conv2d(192, 10, 1),
-            nn.BatchNorm2d(num_features=10),
+            #nn.BatchNorm2d(num_features=10),
             nn.ReLU(),
         )
 

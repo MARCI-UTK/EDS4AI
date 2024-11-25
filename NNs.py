@@ -6,10 +6,12 @@ from torch.utils.data import random_split
 import torch.nn.functional as F
 import numpy as np
 
-class CNN(nn.Module):
+class CNN(nn.Module, xavier_scale=1):
+
     
     def __init__(self):
         super().__init__()
+
         
         self.InputDropout = nn.Dropout(p=0.2)
 
@@ -167,7 +169,7 @@ class PrintLayer(nn.Module):
         #torch.nn.init.xavier_uniform_(m.weight)
         #m.bias.data.fill_(bias_val)
     
-def init_weights(m, ):
+def init_weights(m, xavier_scale=1):
     bias_val = torch.FloatTensor(1).uniform_(-0.05, 0.05)[0]
 
     #print(bias_val)
@@ -180,7 +182,7 @@ def init_weights(m, ):
     if isinstance(m, nn.Conv2d):
         print(bias_val)
         #print('bruh')
-        torch.nn.init.xavier_uniform_(m.weight, 10)
+        torch.nn.init.xavier_uniform_(m.weight, xavier_scale)
         m.bias.data.fill_(bias_val)
 
 

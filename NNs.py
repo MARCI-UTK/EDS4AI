@@ -40,7 +40,7 @@ class CNN(nn.Module):
             nn.Conv2d(96, 96, 3, stride=2, padding=1),
             nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
-            nn.Dropout()
+            nn.Dropout(p=0.5)
         )
 
         self.ConvBlock3 = torch.nn.Sequential(
@@ -51,7 +51,7 @@ class CNN(nn.Module):
         )
 
         self.ConvBlock4 = torch.nn.Sequential(
-            nn.Conv2d(192, 192, 3, padding=1),
+            nn.Conv2d(192, 192, 3, padding=1, ),
             nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
         )
@@ -68,7 +68,7 @@ class CNN(nn.Module):
             nn.Conv2d(192, 192, 3, stride=2, padding=1),
             nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
-            nn.Dropout()
+            nn.Dropout(p=0.5)
         )
 
         #self.ConvBlock5 = torch.nn.Sequential(
@@ -184,6 +184,7 @@ def init_weights(m, xavier_scale=1):
         #print('bruh')
         torch.nn.init.xavier_uniform_(m.weight, xavier_scale)
         m.bias.data.fill_(bias_val)
+        print(m.weight)
 
 
 class Blur(nn.Module):

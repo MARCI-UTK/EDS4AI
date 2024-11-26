@@ -17,14 +17,14 @@ class CNN(nn.Module):
 
         self.ConvBlock1 = torch.nn.Sequential(
             nn.Conv2d(3, 96, 3, padding=1),
-            nn.BatchNorm2d(num_features=96),
+            #nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
             #nn.Dropout(0.2),
         )
 
         self.ConvBlock2 =  torch.nn.Sequential(
             nn.Conv2d(96, 96, 3,padding=1),
-            nn.BatchNorm2d(num_features=96),
+            #nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
             #nn.Dropout(0.3),
         )
@@ -45,14 +45,14 @@ class CNN(nn.Module):
 
         self.ConvBlock3 = torch.nn.Sequential(
             nn.Conv2d(96, 192, 3, padding=1),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
             #nn.Dropout(0.3),
         )
 
         self.ConvBlock4 = torch.nn.Sequential(
             nn.Conv2d(192, 192, 3, padding=1, ),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
         )
 
@@ -80,7 +80,7 @@ class CNN(nn.Module):
 
         self.ConvBlock5 = torch.nn.Sequential(
             nn.Conv2d(192, 192, 3),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
             #nn.Dropout(),
         )
@@ -170,7 +170,7 @@ class PrintLayer(nn.Module):
         #m.bias.data.fill_(bias_val)
     
 def init_weights(m, xavier_scale=1):
-    bias_val = torch.FloatTensor(1).uniform_(-0.05, 0.05)[0]
+    bias_val = torch.FloatTensor(1).uniform_(-1, 1)[0]
 
     #print(bias_val)
 

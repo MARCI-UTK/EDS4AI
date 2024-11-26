@@ -7,22 +7,24 @@ import torch.nn.functional as F
 import numpy as np
 
 class CNN(nn.Module):
+
     
     def __init__(self):
         super().__init__()
+
         
         self.InputDropout = nn.Dropout(p=0.2)
 
         self.ConvBlock1 = torch.nn.Sequential(
             nn.Conv2d(3, 96, 3, padding=1),
-            nn.BatchNorm2d(num_features=96),
+            #nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
             #nn.Dropout(0.2),
         )
 
         self.ConvBlock2 =  torch.nn.Sequential(
             nn.Conv2d(96, 96, 3,padding=1),
-            nn.BatchNorm2d(num_features=96),
+            #nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
             #nn.Dropout(0.3),
         )
@@ -38,19 +40,19 @@ class CNN(nn.Module):
             nn.Conv2d(96, 96, 3, stride=2, padding=1),
             nn.BatchNorm2d(num_features=96),
             nn.ReLU(),
-            nn.Dropout()
+            nn.Dropout(p=0.5)
         )
 
         self.ConvBlock3 = torch.nn.Sequential(
             nn.Conv2d(96, 192, 3, padding=1),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
             #nn.Dropout(0.3),
         )
 
         self.ConvBlock4 = torch.nn.Sequential(
-            nn.Conv2d(192, 192, 3, padding=1),
-            nn.BatchNorm2d(num_features=192),
+            nn.Conv2d(192, 192, 3, padding=1, ),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
         )
 
@@ -66,7 +68,7 @@ class CNN(nn.Module):
             nn.Conv2d(192, 192, 3, stride=2, padding=1),
             nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
-            nn.Dropout()
+            nn.Dropout(p=0.5)
         )
 
         #self.ConvBlock5 = torch.nn.Sequential(
@@ -78,20 +80,20 @@ class CNN(nn.Module):
 
         self.ConvBlock5 = torch.nn.Sequential(
             nn.Conv2d(192, 192, 3),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
             #nn.Dropout(),
         )
 
         self.LinLayer1 = torch.nn.Sequential(
             nn.Conv2d(192, 192, 1),
-            nn.BatchNorm2d(num_features=192),
+            #nn.BatchNorm2d(num_features=192),
             nn.ReLU(),
         )
 
         self.LinLayer2 = torch.nn.Sequential(
             nn.Conv2d(192, 10, 1),
-            nn.BatchNorm2d(num_features=10),
+            #nn.BatchNorm2d(num_features=10),
             nn.ReLU(),
         )
 
@@ -167,8 +169,8 @@ class PrintLayer(nn.Module):
         #torch.nn.init.xavier_uniform_(m.weight)
         #m.bias.data.fill_(bias_val)
     
-def init_weights(m, ):
-    bias_val = torch.FloatTensor(1).uniform_(-0.05, 0.05)[0]
+def init_weights(m, xavier_scale=1):
+    bias_val = torch.FloatTensor(1).uniform_(-1, 1)[0]
 
     #print(bias_val)
 
@@ -180,8 +182,9 @@ def init_weights(m, ):
     if isinstance(m, nn.Conv2d):
         print(bias_val)
         #print('bruh')
-        torch.nn.init.xavier_uniform_(m.weight, 10)
+        torch.nn.init.xavier_uniform_(m.weight, xavier_scale)
         m.bias.data.fill_(bias_val)
+        print(m.weight)
 
 
 class Blur(nn.Module):

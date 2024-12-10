@@ -173,18 +173,28 @@ def init_weights(m, xavier_scale=1):
     bias_val = torch.FloatTensor(1).uniform_(-1, 1)[0]
 
     #print(bias_val)
+    with torch.no_grad():
 
-    if isinstance(m, nn.Linear):
-        print('here')
-        torch.nn.init.xavier_uniform_(m.weight)
-        m.bias.data.fill_(bias_val)
+        if isinstance(m, nn.Linear):
+            #print('here')
+            torch.nn.init.xavier_uniform_(m.weight)
+            m.bias.data.fill_(bias_val)
 
-    if isinstance(m, nn.Conv2d):
-        print(bias_val)
-        #print('bruh')
-        torch.nn.init.xavier_uniform_(m.weight, xavier_scale)
-        m.bias.data.fill_(bias_val)
-        print(m.weight)
+        if isinstance(m, nn.Conv2d):
+            print('yo')
+            #bias_tensor = torch.FloatTensor()
+            bias_size = m.bias.data.shape
+            bias_tensor = torch.FloatTensor(bias_size).uniform_(-1,1)
+            #print(bias_tensor)
+
+            #print(m.bias.data.shape)
+            #print(bias_val)
+            #print('bruh')
+            torch.nn.init.xavier_uniform_(m.weight, xavier_scale)
+            m.bias.copy_(bias_tensor)
+            #print('shapes:')
+            #print(type(m.bias.data.shape))
+            print(m.bias)
 
 
 class Blur(nn.Module):

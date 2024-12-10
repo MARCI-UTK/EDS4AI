@@ -181,7 +181,7 @@ def init_weights(m, xavier_scale=1):
             m.bias.data.fill_(bias_val)
 
         if isinstance(m, nn.Conv2d):
-            print('yo')
+            #print('yo')
             #bias_tensor = torch.FloatTensor()
             bias_size = m.bias.data.shape
             bias_tensor = torch.FloatTensor(bias_size).uniform_(-1,1)
@@ -194,7 +194,7 @@ def init_weights(m, xavier_scale=1):
             m.bias.copy_(bias_tensor)
             #print('shapes:')
             #print(type(m.bias.data.shape))
-            print(m.bias)
+            #print(m.bias)
 
 
 class Blur(nn.Module):

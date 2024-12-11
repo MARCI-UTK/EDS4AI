@@ -22,7 +22,7 @@ import sys
 
 ### Set seed
 #seed = 43
-seed = float(sys.argv[1])
+seed = int(sys.argv[1])
 torch.manual_seed(seed)
 
 # Set Xavier Scaling
@@ -66,7 +66,7 @@ transform = transforms.Compose(
      transforms.ToTensor(),
      ])
 
-batch_size = 512
+batch_size = 128
 
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,

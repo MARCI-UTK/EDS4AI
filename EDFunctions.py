@@ -5,6 +5,7 @@ import torchvision.transforms.v2 as transforms
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 from transformers import CLIPModel
 from transformers import AutoProcessor
@@ -68,8 +69,192 @@ def gen_2d_embeddings(images, num_embeddings):
     #return tsne_results
 
 
+def calc_distance(coordinate_1, coordinate_2):
+    return np.linalg.norm(coordinate_1 - coordinate_2)
+
+
+
+def calc_distances(coords):
+    num_coords = coords.shape[0]
+
+    distance_lists = []
+    for i in range(num_coords):
+        coordinate = coords[i]
+        distance_dict = {j : calc_distance(coordinate, coords[j]) for j in range(num_coords)}
+        distance_lists.append(distance_dict)
+
+    return distance_lists
+
+
+
+def sort_distances(distances_list):
+    from collections import OrderedDict
+
+    m = len(distances_list)
+    sorted_distances = []
+
+    for i in range(m):
+        unsorted_dict = distances_list[i]
+        sorted_dict = OrderedDict(sorted(unsorted_dict.items(), key=lambda item: item[1], reverse=True))
+        sorted_distances.append(sorted_dict)
+
+    return sorted_distances
 
 
 
 
+def generate_indexes(coords, sorted_distances, batch_size):
+    m = coords.shape[0]
+    batch = []
 
+    #distances = calc_distances(coords)
+    #sorted_distances = sort_distances(distances)
+
+    indx = 0
+    rng = np.random.default_rng()
+    indx = rng.integers(0, m)
+    batch.append(indx)
+    prev_indx = indx
+
+    for i in range(batch_size-1):
+        distance_dict = sorted_distances[prev_indx]
+
+        for indx, distance in distance_dict.items():
+            if indx in batch:
+                pass
+            else :
+                batch.append(indx)
+                prev_indx = indx
+                break
+
+    return batch
+
+
+
+def generate_indexes_proportional(coords, sorted_distances, batch_size):
+    m = coords.shape[0]
+    batch = []
+
+    rng = np.random.default_rng()
+    indx = rng.integers(0, m)
+    batch.append(indx)
+    prev_indx = indx
+
+    for i in range(batch_size-1):
+        distance_dict = sorted_distances[prev_indx]
+
+        #remove previously used batch indexes from consideration
+        for indx in batch:
+            if indx in distance_dict.keys():
+                distance_dict.pop(indx)
+
+    
+        indxs = list(distance_dict.keys())
+        distances = list(distance_dict.values())
+
+        probabilities = np.array(distances) / sum(distances)
+
+        indx = np.random.choice(indxs, p=probabilities)
+
+        batch.append(indx)
+        prev_indx = indx
+
+    return batch
+
+
+
+def plot_classes_2d(image_embeddings, targets):
+    column_vals = ['x1', 'x2']
+
+    df2 = pd.DataFrame(data = image_embeddings, columns=column_vals)
+
+    #targets_slice = targets2[0:slice_size]
+
+    label_list =  ['airplane', 'automobile',
+                    'bird',
+                    'cat',
+                    'deer',
+                    'dog',
+                    'frog',
+                    'horse',
+                    'ship',
+                    'truck']
+
+    image_labels = [label_list[x] for x in targets]
+
+    print(len(label_list))
+
+    df2['label'] = image_labels
+
+    plot_raw = sns.scatterplot(x='x1', y='x2', data=df2, hue='label', ec=None, palette="deep")
+
+    plot_raw.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
+
+    fig = plot_raw.get_figure()
+
+    return fig 
+
+def plot_batch_elements(embeddings, batch_indexes):
+    column_vals = ['x1', 'x2']
+
+    df = pd.DataFrame(data = embeddings, columns=column_vals)
+
+    m = embeddings.shape[0]
+    chosen = ['not chosen' for x in range(m)]
+    for indx in batch_indexes:
+        chosen[indx] = 'batch element'
+
+    df['label'] = chosen
+
+    hue_order = ['not chosen', 'batch element']
+    df_sorted = df.sort_values('label', key=np.vectorize(hue_order.index))
+
+    plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='label', ec=None, palette="deep")
+    plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
+
+    fig = plot.get_figure()
+    return fig
+
+
+def plot_batch_order(embeddings, batch_indexes, batch_size, type='inclusive'):
+    column_vals = ['x1', 'x2']
+
+    df = pd.DataFrame(data = embeddings, columns=column_vals)
+
+    m = embeddings.shape[0]
+    chosen = ['not chosen' for x in range(m)]
+    for indx in batch_indexes:
+        chosen[indx] = 'batch element'
+
+    df['label'] = chosen
+
+    df['batch_order'] = 0
+
+    if (type == 'inclusive'):
+        for i, batch_index in enumerate(batch_indexes):
+            df.at[batch_index, 'batch_order'] = batch_size + i
+
+        hue_order = ['not chosen', 'batch element']
+        df_sorted = df.sort_values('label', key=np.vectorize(hue_order.index))
+
+        plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='batch_order', ec=None, legend='brief')
+        plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
+
+        fig = plot.get_figure()
+        return fig
+
+    elif (type == 'exclusive'):
+        for i, batch_index in enumerate(batch_indexes):
+            df.at[batch_index, 'batch_order'] = i
+
+
+        hue_order = ['not chosen', 'batch element']
+        df_sorted = df.sort_values('label', key=np.vectorize(hue_order.index))
+
+        df_sorted = df_sorted[df_sorted['label'] == 'batch element']
+
+        plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='batch_order', ec=None, legend='brief')
+        plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
+
+        fig = plot.get_figure()
+        return fig

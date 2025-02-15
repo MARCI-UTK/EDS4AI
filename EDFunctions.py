@@ -131,11 +131,15 @@ def generate_indexes(coords, sorted_distances, batch_size):
 
 
 
-def generate_indexes_proportional(coords, sorted_distances, batch_size):
+def generate_indexes_proportional(coords, sorted_distances, batch_size, seed=None):
     m = coords.shape[0]
     batch = []
 
-    rng = np.random.default_rng()
+    if(seed==None):
+        rng = np.random.default_rng()
+    else :
+        rng = np.random.default_rng(seed=seed)
+
     indx = rng.integers(0, m)
     batch.append(indx)
     prev_indx = indx
@@ -154,10 +158,57 @@ def generate_indexes_proportional(coords, sorted_distances, batch_size):
 
         probabilities = np.array(distances) / sum(distances)
 
-        indx = np.random.choice(indxs, p=probabilities)
+        #indx = np.random.choice(indxs, p=probabilities)
+        indx = rng.choice(indxs, p=probabilities)
 
         batch.append(indx)
         prev_indx = indx
+
+    return batch
+
+def generate_indexes_proportional_avg(coords, batch_size, power=12, seed=None):
+    m = coords.shape[0]
+
+    points = {i: v for i, v in enumerate(coords)}
+
+    unused_indxs = list(range(m))
+    batch = []
+
+    if(seed==None):
+        rng = np.random.default_rng()
+    else :
+        rng = np.random.default_rng(seed=seed)
+
+    indx = rng.integers(0, m)
+    batch.append(indx)
+    unused_indxs.remove(indx)
+    avg = points[indx]
+
+    for i in range(batch_size-1):
+        distances = {}
+
+        #find distances between unused indxs and avg of coordinates of all used indxs
+        for indx in unused_indxs:
+            coord = points[indx]
+            distances[indx] = calc_distance(avg, coord)
+
+        # find new index proportional to distances
+        indxs = list(distances.keys())
+        #distances_list = list(distances.values())
+        #probabilities = np.array(distances_list) / sum(distances_list)
+
+        distances_ndarray = np.array(list(distances.values()))
+        distances_ndarray = np.power(distances_ndarray, power)
+        probabilities = (distances_ndarray) / np.sum(distances_ndarray)
+        
+        new_batch_indx = rng.choice(indxs, p=probabilities)
+
+        # calculate new avg
+        avg = (avg*(i+1) + points[new_batch_indx])/(i+2)
+
+        unused_indxs.remove(new_batch_indx)
+        batch.append(new_batch_indx)
+
 
     return batch
 

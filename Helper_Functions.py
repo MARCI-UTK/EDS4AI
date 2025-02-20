@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 from torch import nn
 from torch.utils.data import random_split
 import torch.nn.functional as F
+import glob
 
 def calculate_accuracy(model, testloader, device):
     model.eval()
@@ -77,3 +78,13 @@ def load_checkpoint(model, optimizer, filename="checkpoint.pth"):
     loss = checkpoint['loss']
     print(f"Checkpoint loaded from epoch {epoch}, loss: {loss}")
     return model, optimizer, epoch, loss
+
+
+
+def create_unified_cifar10_dataset():
+    dir_path = "./data/cifar-10-batches-py/"
+
+    filenames = glob.glob(dir_path + "data_batch*")
+    print(type(filenames))
+    filenames.append("test_batch")
+    return filenames

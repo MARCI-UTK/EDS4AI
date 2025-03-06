@@ -245,7 +245,7 @@ def plot_classes_2d(image_embeddings, targets):
 
     return fig 
 
-def plot_batch_elements(embeddings, batch_indexes):
+def plot_batch_elements(embeddings, batch_indexes, tick_size):
     column_vals = ['x1', 'x2']
 
     df = pd.DataFrame(data = embeddings, columns=column_vals)
@@ -260,7 +260,7 @@ def plot_batch_elements(embeddings, batch_indexes):
     hue_order = ['not chosen', 'batch element']
     df_sorted = df.sort_values('label', key=np.vectorize(hue_order.index))
 
-    plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='label', ec=None, palette="deep")
+    plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='label', ec=None, palette="deep", s=tick_size)
     plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
 
     fig = plot.get_figure()
@@ -310,10 +310,28 @@ def plot_batch_order(embeddings, batch_indexes, batch_size, type='inclusive'):
         fig = plot.get_figure()
         return fig
 
+def get_class_embeddings(embeddings, targets, label):
+    targets = np.array(targets)
+    targets = np.expand_dims(targets, 1)
+
+    all_indexes = np.array(range(0, embeddings.shape[0]))
+    all_indexes = np.expand_dims(all_indexes, 1)
+
+    full_data = np.append(embeddings, all_indexes, axis=1) 
+    full_data = np.append(full_data, targets, axis=1) 
+
+    class_data = full_data[ full_data[:,-1] == label ]
+    true_indexes = class_data[:,-2].astype(int)
+    class_data = class_data[:,:-2]
+
+
+    return class_data, true_indexes
+
 # idea behind this code comes from 
 # https://math.stackexchange.com/questions/1652545/multivariate-normal-value-standardization
 from sklearn.preprocessing import power_transform
 def fit_distribution_3(data_points, transform=True):
+    import scipy.linalg
     if (transform):
         data_points = power_transform(data_points)
 

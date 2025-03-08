@@ -119,8 +119,8 @@ class FCN_CIFAR10(nn.Module):
 def objective(trial):
     torch.manual_seed(0)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+    #print(f"Using device: {device}")
 
     model = FCN_CIFAR10(num_classes=10).to(device)
     criterion = nn.CrossEntropyLoss()
@@ -128,10 +128,11 @@ def objective(trial):
     optimizer_name = trial.suggest_categorical("optimzer", ['Adam', 'RMSprop', 'SGD'])
     lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
     weight_decay = trial.suggest_float("weight_decay_rate", 1e-5, 1e-1, log=True)
+    gamma = trial.suggest_float("gamma_rate", 5e-2, 5e-1, log=True)
 
 
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=gamma)
 
 
     # Training parameters
@@ -193,18 +194,19 @@ def objective(trial):
         trial.report(test_acc, epoch)
 
         if trial.should_prune():
+            print(f'Trial {trial.number} pruned')
             raise optuna.exceptions.TrialPruned()
 
+        #print(f"Epoch [{epoch+1}/{num_epochs}], LR: {scheduler.get_last_lr()}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%")
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], LR: {scheduler.get_last_lr()}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%")
-
-    print("Training Finished!")
+    #print("Training Finished!")
+    print(f'Trial {trial.number} completed, accuracy: {test_acc}')
     return test_acc
 
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=1, timeout=600)
+    study.optimize(objective, n_trials=100, timeout=600)
 
     pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
     complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])

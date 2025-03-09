@@ -32,7 +32,7 @@ def get_datasets():
     return trainset, testset
 
 
-def Trial(deficit, deficit_params, save_dir):
+def Trial(deficit, subset_size, deficit_duration, save_dir):
     #get all the necessary data - at this point it is just
     #hardcoded into the trial code
     trainset, testset = get_datasets()
@@ -67,7 +67,7 @@ def Trial(deficit, deficit_params, save_dir):
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.5)
 
     # Training parameters
-    num_epochs = 200
+    num_epochs = 10
 
     train_loss_list, test_loss_list = [], []
     train_acc_list, test_acc_list = [], []
@@ -121,14 +121,14 @@ def Trial(deficit, deficit_params, save_dir):
 
         print(f"Epoch [{epoch+1}/{num_epochs}], LR: {scheduler.get_last_lr()}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%")
 
-    print("Training Finished!")
+    print(f"Training Finished! Saving data to {save_dir}")
 
 
 
 
 
 if __name__ == '__main__' :
-    Trial('Similarity', 0, 0)
+    Trial('Similarity', 0.60, 5, 'test_dir')
 
 
 

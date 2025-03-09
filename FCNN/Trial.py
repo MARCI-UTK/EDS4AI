@@ -119,9 +119,9 @@ def Trial(deficit, deficit_params, save_dir):
         test_loss_list.append(test_loss)
         test_acc_list.append(test_acc)
 
-        #print(f"Epoch [{epoch+1}/{num_epochs}], LR: {scheduler.get_last_lr()}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%")
+        print(f"Epoch [{epoch+1}/{num_epochs}], LR: {scheduler.get_last_lr()}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%")
 
-    #print("Training Finished!")
+    print("Training Finished!")
 
 
 

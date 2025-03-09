@@ -26,7 +26,7 @@ class SimilaritySampler(torch.utils.data.Sampler):
         if self.current_epoch < self.duration :
             indices = self.subset
         else :
-            indices = self.all_indices
+            indices = self.all_indices.copy()
 
         if self.shuffle :
             indices = indices[torch.randperm(indices.shape[0])]

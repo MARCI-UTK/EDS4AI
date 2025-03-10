@@ -2,13 +2,13 @@ import numpy as np
 from Trial import Trial
 
 DEFICIT_LIST = ['similarity', 'disimilarity']
-#DURATION_LIST = [5, 10, 15, 20, 30, 100, 200]
-DURATION_LIST = [5]
-#SUBSET_SIZE_LIST = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-SUBSET_SIZE_LIST = [0.1, 0.5]
+DURATION_LIST = [5, 10, 15, 20, 30, 100, 200]
+#DURATION_LIST = [5]
+SUBSET_SIZE_LIST = [0.1, 0.2, 0.3, 0.4, 0.6, 0.8,]
+#SUBSET_SIZE_LIST = [0.1, 0.5]
 
-#POST_EPOCH = 200
-POST_EPOCH = 2
+POST_EPOCH = 200
+#POST_EPOCH = 2
 
 
 from pathlib import Path

@@ -126,13 +126,13 @@ def Trial(deficit, subset_size, deficit_duration, post_duration, save_dir):
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.5)
 
     # Training parameters
-    num_epochs = post_duration
+    num_epochs = post_duration + deficit_duration
 
     train_loss_list, test_loss_list = [], []
     train_acc_list, test_acc_list = [], []
 
     # Training loop
-    for epoch in range(deficit_duration + post_duration):
+    for epoch in range(num_epochs):
         model.train()
         running_loss, correct, total = 0.0, 0, 0
 

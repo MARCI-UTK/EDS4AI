@@ -1,0 +1,90 @@
+
+import Experiment
+
+exp1 = {
+    'experiment_module' : 'Experiment',
+    'experiment_name' : 'Experiment',
+
+    'nn_module' : "FCNN",
+    'nn_name' : 'FCN_CIFAR10',
+    'nn_params' : {'num_classes' : 10},
+
+    'optimizer_name' : 'AdamW',
+    'optimizer_params' : {'lr' : 0.001},
+
+    'criterion_name' : 'CrossEntropyLoss',
+
+}
+    
+
+# code was taken from ai generated google results
+# this was the search term: 
+# "python how to create a class instance from a class name passed as a string"
+def get_class(module_name, class_name):
+    try :
+        module = __import__(module_name, fromlist=[class_name])
+        cls = getattr(module, class_name)
+        return cls
+    except (ImportError, AttributeError) as e:
+        print(f"Error: Could not get {class_name} from {module_name}. {e}")
+        return None 
+
+
+if __name__ == '__main__' :
+
+    nn_class = get_class(exp1['nn_module'], exp1['nn_name'])
+    nn_params = exp1['nn_params']
+
+    opt = get_class('torch.optim', exp1['optimizer_name'])
+    opt_params = exp1['optimizer_params']
+
+    criterion_class = get_class('torch.nn', exp1['criterion_name'])
+
+    model_wrapper = Experiment.Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
+                              criterion_class=criterion_class, dataset=None, scheduler=None)
+
+    inst = nn_class(**nn_params)
+
+
+    from torch.utils.data import DataLoader, TensorDataset
+    from Trial import get_datasets
+
+    trainset, testset = get_datasets()
+
+    trainloader = DataLoader(trainset, batch_size=128)
+    testloader = DataLoader(testset, batch_size=128, shuffle=False)
+
+    model = model_wrapper.nn
+    loader = trainloader 
+    optimizer = model_wrapper.optimizer
+    criterion = model_wrapper.criterion
+    device = "cpu"
+    
+    model.train()
+    running_loss = 0.0
+    correct = 0
+    total = 0
+
+    for i in range(20):
+        for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
+
+            # Forward pass
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+            # Backward pass
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            # Statistics
+            running_loss += loss.item() * images.size(0)
+            _, predicted = outputs.max(1)
+            correct += predicted.eq(labels).sum().item()
+            total += labels.size(0)
+
+        epoch_loss = running_loss / total
+        epoch_acc = 100.0 * correct / total
+        print(f'{epoch_loss}, {epoch_acc}')
+

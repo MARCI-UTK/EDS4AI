@@ -5,7 +5,7 @@ exp1 = {
     'experiment_module' : 'Experiment',
     'experiment_name' : 'Experiment',
 
-    'device' : 'cpu',
+    'device' : 'cuda:0',
 
     'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
     'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
@@ -89,6 +89,8 @@ if __name__ == '__main__' :
 
     experiment.add_deficit(deficit=None)
 
+
+    experiment.train_model()
 
     field_dict = {}
     for field in experiment.info_to_save :

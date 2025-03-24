@@ -38,6 +38,10 @@ from torch.utils.data import DataLoader
     #with open(filename, 'w') as file:
         #json.dump(obj, file, default=default,indent=4)
 
+from abc import ABC, classmethod
+class Deficit():
+    def __init__()
+
 class Model():
     def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class,
                  trainset, testset, scheduler_class=None):
@@ -206,6 +210,7 @@ class Experiment():
 
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
     def train_model(self):
+        self.model.to(self.device)
 
         num_epochs = self.num_epochs
         scheduler = self.scheduler

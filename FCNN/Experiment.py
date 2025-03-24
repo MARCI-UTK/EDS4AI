@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 
 #class variables are going to be
 # Model stuff:
@@ -21,32 +22,105 @@ import torch.nn.functional as F
 
 
 class Model():
-    def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class, dataset, scheduler=None):
+    def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class,
+                 trainset, testset, scheduler_class=None):
+
+        self.nn_class = nn_class
+        self.nn_params = nn_params    
         self.nn = nn_class(**nn_params)
 
         #add the models initialized weights to the optimizer parameter list
         optimizer_params['params'] = self.nn.parameters()
+
+        self.optimizer_class = optimizer_class
+        self.optimizer_params = optimizer_params
         self.optimizer = optimizer_class(**optimizer_params)
 
+        self.criterion_class = criterion_class
         self.criterion = criterion_class()
 
-        self.dataset = dataset
+        if scheduler_class == None: 
+            self.scheduler_class = None
+
+            #this scheduler does nothing
+            self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=100, gamma=1)
+
+        self.trainset = trainset
+        self.testset = testset
 
 
 class Experiment():
+    info_to_save = [
+                    'num_epochs', 'device', 'model_class', 'model_params', 'optimizer_class', 'optimizer_params',
+                    'criterion_class', 'deficit', 'deficit_duration', 'trainloader_params', 'testloader_params',
+
+                    ]
 
 
-    def __init__(self, num):
-        self.num = num
+    def __init__(self, exp_params):
+        if 'num_epochs' in exp_params:
+            self.num_epochs = exp_params['num_epochs']
+        else :
+            self.num_epochs = 200
+
+        if 'device' in exp_params:
+            self.device = exp_params['device']
+        else :
+            self.device = 'cpu'
+
+        if 'trainloader_params' in exp_params:
+            self.trainloader_params = exp_params['trainloader_params']
+        else :
+            self.trainloader_params = {'batch_size' : 128, 'shuffle' : True}
+
+        if 'testloader_params' in exp_params:
+            self.testloader_params = exp_params['testloader_params']
+        else :
+            self.testloader_params = {'batch_size' : 128, 'shuffle' : False}
 
 
-        pass
+
+    def add_model(self, model_wrapper : Model):
+        self.model = model_wrapper.nn
+        self.model_params = model_wrapper.nn_params
+        self.model_class = model_wrapper.nn_class
+        
+        self.optimizer = model_wrapper.optimizer
+        self.optimizer_params = model_wrapper.optimizer_params
+        self.model_class = model_wrapper.optimizer_class
+        
+        self.criterion = model_wrapper.criterion
+        self.criterion_class = model_wrapper.criterion_class
+
+        self.trainset = model_wrapper.trainset
+        self.testset = model_wrapper.testset
+
+        self.scheduler = model_wrapper.scheduler
+
+
+
+    def add_deficit(self, deficit=None):
+        #we can't create the the dataloaders until we know what the deficit is
+        # this is because we need to know if there is a sampler
+
+        # blank deficit doesn't need a sampler
+        if deficit == None:
+            self.trainloader_params['dataset'] = self.trainset
+            self.testloader_params['dataset'] = self.testset
+
+            self.trainloader = DataLoader( **(self.trainloader_params) )
+            self.testloader = DataLoader( **(self.testloader_params) )
+
+
+            self.deficit_duration = 0
+        else :
+            pass
 
     
     #def train_one_epoch(model, loader, optimizer, device):
     def train_one_epoch(self):
         model = self.model
-        loader = self.train_loader
+        loader = self.trainloader
         optimizer = self.optimizer
         device = self.device
         
@@ -82,7 +156,7 @@ class Experiment():
 
     def evaluate(self):
         model = self.model
-        loader = self.test_loader
+        loader = self.testloader
         device = self.device
 
 

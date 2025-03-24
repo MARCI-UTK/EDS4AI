@@ -5,6 +5,11 @@ exp1 = {
     'experiment_module' : 'Experiment',
     'experiment_name' : 'Experiment',
 
+    'device' : 'cpu',
+
+    'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
+    'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
+
     'nn_module' : "FCNN",
     'nn_name' : 'FCN_CIFAR10',
     'nn_params' : {'num_classes' : 10},
@@ -31,6 +36,10 @@ def get_class(module_name, class_name):
 
 
 if __name__ == '__main__' :
+    from Trial import get_datasets
+    trainset, testset = get_datasets()
+
+    experiment = Experiment.Experiment(exp1)
 
     nn_class = get_class(exp1['nn_module'], exp1['nn_name'])
     nn_params = exp1['nn_params']
@@ -41,50 +50,52 @@ if __name__ == '__main__' :
     criterion_class = get_class('torch.nn', exp1['criterion_name'])
 
     model_wrapper = Experiment.Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
-                              criterion_class=criterion_class, dataset=None, scheduler=None)
-
-    inst = nn_class(**nn_params)
+                                    criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler=None)
 
 
-    from torch.utils.data import DataLoader, TensorDataset
-    from Trial import get_datasets
+    experiment.add_model(model_wrapper=model_wrapper)
 
-    trainset, testset = get_datasets()
+    experiment.add_deficit(deficit=None)
 
-    trainloader = DataLoader(trainset, batch_size=128)
-    testloader = DataLoader(testset, batch_size=128, shuffle=False)
 
-    model = model_wrapper.nn
-    loader = trainloader 
-    optimizer = model_wrapper.optimizer
-    criterion = model_wrapper.criterion
-    device = "cpu"
+    for field in experiment.info_to_save :
+        print(f'{field} --->   {getattr(experiment, field)}')
+
+
+    #trainloader = DataLoader(trainset, batch_size=128)
+    #testloader = DataLoader(testset, batch_size=128, shuffle=False)
+
+    #model = model_wrapper.nn
+    #loader = trainloader 
+    #optimizer = model_wrapper.optimizer
+    #criterion = model_wrapper.criterion
+    #device = "cpu"
     
-    model.train()
-    running_loss = 0.0
-    correct = 0
-    total = 0
+    #model.train()
+    #running_loss = 0.0
+    #correct = 0
+    #total = 0
 
-    for i in range(20):
-        for images, labels in loader:
-            images, labels = images.to(device), labels.to(device)
+    #for i in range(20):
+        #for images, labels in loader:
+            #images, labels = images.to(device), labels.to(device)
 
-            # Forward pass
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            ## Forward pass
+            #outputs = model(images)
+            #loss = criterion(outputs, labels)
 
-            # Backward pass
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            ## Backward pass
+            #optimizer.zero_grad()
+            #loss.backward()
+            #optimizer.step()
 
-            # Statistics
-            running_loss += loss.item() * images.size(0)
-            _, predicted = outputs.max(1)
-            correct += predicted.eq(labels).sum().item()
-            total += labels.size(0)
+            ## Statistics
+            #running_loss += loss.item() * images.size(0)
+            #_, predicted = outputs.max(1)
+            #correct += predicted.eq(labels).sum().item()
+            #total += labels.size(0)
 
-        epoch_loss = running_loss / total
-        epoch_acc = 100.0 * correct / total
-        print(f'{epoch_loss}, {epoch_acc}')
+        #epoch_loss = running_loss / total
+        #epoch_acc = 100.0 * correct / total
+        #print(f'{epoch_loss}, {epoch_acc}')
 

@@ -38,9 +38,15 @@ from torch.utils.data import DataLoader
     #with open(filename, 'w') as file:
         #json.dump(obj, file, default=default,indent=4)
 
+
+#abstract base class for deficits, every deficit must implement the function
+#get_sampler which returns an instance of a class that inherits torch.utils.data.Sampler
 from abc import ABC, classmethod
-class Deficit():
-    def __init__()
+class Deficit(ABC):
+
+    @classmethod 
+    def get_sampler(self):
+        pass
 
 class Model():
     def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class,
@@ -123,6 +129,7 @@ class Experiment():
 
 
 
+    #here you pass an instance of the deficit class
     def add_deficit(self, deficit=None):
         #we can't create the the dataloaders until we know what the deficit is
         # this is because we need to know if there is a sampler
@@ -139,6 +146,12 @@ class Experiment():
             self.deficit = None
             self.deficit_duration = 0
         else :
+            self.deficit = deficit
+
+            self.deficit_name = type(deficit).__name__
+            self.sampler = self.deficit.get_sampler()
+
+
             pass
 
     

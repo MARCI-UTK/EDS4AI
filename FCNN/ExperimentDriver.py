@@ -21,6 +21,10 @@ exp1 = {
 
     'num_epochs' : 199,
 
+    'deficit_module' : 'SimilarityModule',
+    'deficit_name' : 'SimilarityTypeDeficit',
+    'deficit_params' : {'subset_size' : 0.4, 'duration':10, 'type': 'similarity'},
+
 }
     
 
@@ -87,19 +91,21 @@ if __name__ == '__main__' :
 
     experiment.add_model(model_wrapper=model_wrapper)
 
+
+    deficit = 
     experiment.add_deficit(deficit=None)
 
 
     experiment.train_model()
 
-    field_dict = {}
-    for field in experiment.info_to_save :
-        #print(f'{field} --->   {getattr(experiment, field)}')
-        field_dict[field] = getattr(experiment, field)
+    #field_dict = {}
+    #for field in experiment.info_to_save :
+        ##print(f'{field} --->   {getattr(experiment, field)}')
+        #field_dict[field] = getattr(experiment, field)
 
 
-    print(type(nn_class))
-    print(type(nn_class) == type)
+    #print(type(nn_class))
+    #print(type(nn_class) == type)
 
     #print(type(field_dict['testloader_params']['dataset']))
     #import inspect
@@ -107,8 +113,6 @@ if __name__ == '__main__' :
 
     #import pprint
     #pprint.pprint(field_dict)
-
-    obj = {"a": 1, "b": bytes()} # bytes is non-serializable by default
 
     Experiment.serialize_experiment_params(experiment, 'hi2.json')
 

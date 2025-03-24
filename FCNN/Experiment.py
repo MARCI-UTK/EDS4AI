@@ -87,7 +87,7 @@ class Experiment():
         
         self.optimizer = model_wrapper.optimizer
         self.optimizer_params = model_wrapper.optimizer_params
-        self.model_class = model_wrapper.optimizer_class
+        self.optimizer_class = model_wrapper.optimizer_class
         
         self.criterion = model_wrapper.criterion
         self.criterion_class = model_wrapper.criterion_class
@@ -112,6 +112,7 @@ class Experiment():
             self.testloader = DataLoader( **(self.testloader_params) )
 
 
+            self.deficit = None
             self.deficit_duration = 0
         else :
             pass

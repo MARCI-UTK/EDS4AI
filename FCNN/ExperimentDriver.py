@@ -19,6 +19,8 @@ exp1 = {
 
     'criterion_name' : 'CrossEntropyLoss',
 
+    'num_epochs' : 199,
+
 }
     
 
@@ -34,8 +36,44 @@ def get_class(module_name, class_name):
         print(f"Error: Could not get {class_name} from {module_name}. {e}")
         return None 
 
+import json
+def is_jsonable(x):
+    try:
+        json.dump(x)
+        return True
+    except(TypeError, OverflowError):
+        return False
+
+def convert_to_json(z):
+    if (type(z) == dict):
+        for key in z:
+            z[key] = convert_to_json(z[key])
+
+    else:
+        if(is_jsonable(z)):
+            return z
+        else:
+            return str(z)
+        
+def safe_default(obj):
+    if type(obj) == type:
+        return (obj).__name__
+    else:
+        return str(obj)
+
+def safe_serialize(obj):
+    #default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
+    #default = lambda o: str(o)
+    #default = lambda o: str(type(o)
+    #with open('data.json', 'w') as file:
+        #json.dump(obj, file, default=default,indent=4)
+    default = lambda o: safe_default(o)
+    with open('data.json', 'w') as file:
+        json.dump(obj, file, default=default,indent=4)
+    #return json.dumps(obj, default=default)
 
 if __name__ == '__main__' :
+
     from Trial import get_datasets
     trainset, testset = get_datasets()
 
@@ -50,7 +88,7 @@ if __name__ == '__main__' :
     criterion_class = get_class('torch.nn', exp1['criterion_name'])
 
     model_wrapper = Experiment.Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
-                                    criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler=None)
+                                    criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=None)
 
 
     experiment.add_model(model_wrapper=model_wrapper)
@@ -58,9 +96,32 @@ if __name__ == '__main__' :
     experiment.add_deficit(deficit=None)
 
 
+    field_dict = {}
     for field in experiment.info_to_save :
-        print(f'{field} --->   {getattr(experiment, field)}')
+        #print(f'{field} --->   {getattr(experiment, field)}')
+        field_dict[field] = getattr(experiment, field)
 
+
+    print(type(nn_class))
+    print(type(nn_class) == type)
+
+    #print(type(field_dict['testloader_params']['dataset']))
+    #import inspect
+    #print(  inspect.isclass(field_dict['testloader_params']['dataset']))
+
+    #import pprint
+    #pprint.pprint(field_dict)
+
+    obj = {"a": 1, "b": bytes()} # bytes is non-serializable by default
+    print(safe_serialize(obj))
+
+    print(safe_serialize(field_dict))
+    #new_dict = safe_serialize(field_dict)
+
+
+    #import json
+    #with open('data.json', 'w') as file:
+        #json.dump(new_dict, file, indent=4)
 
     #trainloader = DataLoader(trainset, batch_size=128)
     #testloader = DataLoader(testset, batch_size=128, shuffle=False)

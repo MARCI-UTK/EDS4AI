@@ -37,40 +37,34 @@ def get_class(module_name, class_name):
         return None 
 
 import json
-def is_jsonable(x):
-    try:
-        json.dump(x)
-        return True
-    except(TypeError, OverflowError):
-        return False
+#def is_jsonable(x):
+    #try:
+        #json.dump(x)
+        #return True
+    #except(TypeError, OverflowError):
+        #return False
 
-def convert_to_json(z):
-    if (type(z) == dict):
-        for key in z:
-            z[key] = convert_to_json(z[key])
+#def convert_to_json(z):
+    #if (type(z) == dict):
+        #for key in z:
+            #z[key] = convert_to_json(z[key])
 
-    else:
-        if(is_jsonable(z)):
-            return z
-        else:
-            return str(z)
+    #else:
+        #if(is_jsonable(z)):
+            #return z
+        #else:
+            #return str(z)
         
-def safe_default(obj):
-    if type(obj) == type:
-        return (obj).__name__
-    else:
-        return str(obj)
+#def safe_default(obj):
+    #if type(obj) == type:
+        #return (obj).__name__
+    #else:
+        #return str(obj)
 
-def safe_serialize(obj):
-    #default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
-    #default = lambda o: str(o)
-    #default = lambda o: str(type(o)
-    #with open('data.json', 'w') as file:
+#def safe_serialize(obj, filename):
+    #default = lambda o: safe_default(o)
+    #with open(filename, 'w') as file:
         #json.dump(obj, file, default=default,indent=4)
-    default = lambda o: safe_default(o)
-    with open('data.json', 'w') as file:
-        json.dump(obj, file, default=default,indent=4)
-    #return json.dumps(obj, default=default)
 
 if __name__ == '__main__' :
 
@@ -113,9 +107,12 @@ if __name__ == '__main__' :
     #pprint.pprint(field_dict)
 
     obj = {"a": 1, "b": bytes()} # bytes is non-serializable by default
-    print(safe_serialize(obj))
 
-    print(safe_serialize(field_dict))
+    Experiment.serialize_experiment_params(experiment, 'hi2.json')
+
+    #print(safe_serialize(obj))
+
+    #print(safe_serialize(field_dict))
     #new_dict = safe_serialize(field_dict)
 
 

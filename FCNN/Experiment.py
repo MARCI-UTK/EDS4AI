@@ -20,6 +20,23 @@ from torch.utils.data import DataLoader
 #- device
 #- epochs to train after deficit
 
+#import json
+#def safe_default(obj):
+    #if type(obj) == type:
+        #return (obj).__name__
+    #else:
+        #return str(obj)
+
+#def serialize_experiment_params(experiment, filename):
+    #obj = {}
+
+    #for field in experiment.info_to_save :
+        #obj[field] = getattr(experiment, field)
+    
+
+    #default = lambda o: safe_default(o)
+    #with open(filename, 'w') as file:
+        #json.dump(obj, file, default=default,indent=4)
 
 class Model():
     def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class,
@@ -51,8 +68,8 @@ class Model():
 
 class Experiment():
     info_to_save = [
-                    'num_epochs', 'device', 'model_class', 'model_params', 'optimizer_class', 'optimizer_params',
-                    'criterion_class', 'deficit', 'deficit_duration', 'trainloader_params', 'testloader_params',
+                    'num_epochs', 'device', 'model_name', 'model_params', 'optimizer_name', 'optimizer_params',
+                    'criterion_name', 'deficit', 'deficit_duration', 'trainloader_params', 'testloader_params',
 
                     ]
 
@@ -84,13 +101,16 @@ class Experiment():
         self.model = model_wrapper.nn
         self.model_params = model_wrapper.nn_params
         self.model_class = model_wrapper.nn_class
+        self.model_name = self.model_class.__name__
         
         self.optimizer = model_wrapper.optimizer
         self.optimizer_params = model_wrapper.optimizer_params
         self.optimizer_class = model_wrapper.optimizer_class
+        self.optimizer_name = self.optimizer_class.__name__
         
         self.criterion = model_wrapper.criterion
         self.criterion_class = model_wrapper.criterion_class
+        self.criterion_name = self.criterion_class.__name__
 
         self.trainset = model_wrapper.trainset
         self.testset = model_wrapper.testset
@@ -222,6 +242,26 @@ class Experiment():
 
         #return
         return train_losses, train_accs, test_losses, test_accs
+
+
+import json
+def safe_default(obj):
+    if type(obj) == type:
+        return (obj).__name__
+    else:
+        return str(obj)
+
+def serialize_experiment_params(experiment : Experiment, filename):
+    obj = {}
+
+    for field in experiment.info_to_save :
+        obj[field] = getattr(experiment, field)
+    
+
+    default = lambda o: safe_default(o)
+    with open(filename, 'w') as file:
+        json.dump(obj, file, default=default,indent=4)
+
 
 if __name__ == '__main__':
     print('hi')

@@ -41,11 +41,21 @@ from torch.utils.data import DataLoader
 
 #abstract base class for deficits, every deficit must implement the function
 #get_sampler which returns an instance of a class that inherits torch.utils.data.Sampler
-from abc import ABC, classmethod
+#from abc import ABC, classmethod
+from abc import ABC, abstractmethod
 class Deficit(ABC):
+    def __init__(self, deficit_class, deficit_params):
+        self.deficit_class = deficit_class
+        self.deficit_params = deficit_params
+        self.deficit = deficit_class(deficit_params)
 
-    @classmethod 
-    def get_sampler(self):
+    #@classmethod 
+    @abstractmethod
+    def update_deficit(self, epoch):
+        pass
+
+    @abstractmethod
+    def Apply_To_Experiment(self, exp):
         pass
 
 class Model():
@@ -79,7 +89,7 @@ class Model():
 class Experiment():
     info_to_save = [
                     'num_epochs', 'device', 'model_name', 'model_params', 'optimizer_name', 'optimizer_params',
-                    'criterion_name', 'deficit', 'deficit_duration', 'trainloader_params', 'testloader_params',
+                    'criterion_name', 'deficit', 'deficit_params', 'trainloader_params', 'testloader_params',
 
                     ]
 
@@ -147,12 +157,9 @@ class Experiment():
             self.deficit_duration = 0
         else :
             self.deficit = deficit
+            #THis  will set the trainloader
+            deficit.Apply_To_Experiment(self)
 
-            self.deficit_name = type(deficit).__name__
-            self.sampler = self.deficit.get_sampler()
-
-
-            pass
 
     
     #def train_one_epoch(model, loader, optimizer, device):

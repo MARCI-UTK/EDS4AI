@@ -5,7 +5,7 @@ exp1 = {
     'experiment_module' : 'Experiment',
     'experiment_name' : 'Experiment',
 
-    'device' : 'cuda:0',
+    'device' : 'cpu',
 
     'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
     'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
@@ -71,6 +71,7 @@ import json
         #json.dump(obj, file, default=default,indent=4)
 
 if __name__ == '__main__' :
+    
 
     from Trial import get_datasets
     trainset, testset = get_datasets()
@@ -89,12 +90,17 @@ if __name__ == '__main__' :
                                     criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=None)
 
 
+    deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])
+    deficit_params = exp1['deficit_params']
+    deficit_wrapper = Experiment.Deficit()
+
     experiment.add_model(model_wrapper=model_wrapper)
 
 
-    deficit = 
+    #deficit = 
     experiment.add_deficit(deficit=None)
 
+    print("here")
 
     experiment.train_model()
 

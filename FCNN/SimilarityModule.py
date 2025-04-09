@@ -49,5 +49,5 @@ class SimilarityTypeDeficit(Deficit):
         self.sampler = SimilaritySampler(self.subset_size, self.quantiles, self.duration, type=self.type, shuffle=self.shuffle)
 
     
-    def get_sampler(self):
-        return self.sampler
+    def update_deficit(self, epoch):
+        self.sampler.set_epoch(epoch)

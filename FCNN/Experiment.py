@@ -157,6 +157,7 @@ class Experiment():
             self.deficit_duration = 0
         else :
             self.deficit = deficit
+            self.deficit_params = deficit.deficit_params
             #THis  will set the trainloader
             deficit.Apply_To_Experiment(self)
 

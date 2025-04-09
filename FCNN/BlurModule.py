@@ -41,6 +41,7 @@ class BlurDeficit(Deficit):
                 if param not in deficit_params:
                     raise Exception(f"Error: Blur deficit params must contain {param}")
 
+            self.deficit_params = deficit_params
             dict = deficit_params
             start_epoch = dict['start_epoch']
             end_epoch = dict['end_epoch']

@@ -19,7 +19,7 @@ exp1 = {
 
     'criterion_name' : 'CrossEntropyLoss',
 
-    'num_epochs' : 3,
+    'num_epochs' : 1,
 
     'deficit_module' : 'BlurModule',
     'deficit_name' : 'BlurDeficit',
@@ -120,7 +120,14 @@ if __name__ == '__main__' :
     #import pprint
     #pprint.pprint(field_dict)
 
-    Experiment.serialize_experiment_params(experiment, 'hi2.json')
+    experiment.serialize_experiment_params('hi2.json')
+
+    from Experiment import get_data
+
+    (a, _, _, _,) = get_data('output', experiment.exp_id)
+
+    print(f'Exp_id: {experiment.exp_id}')
+    print(f'train_losses: {a}')
 
     #print(safe_serialize(obj))
 

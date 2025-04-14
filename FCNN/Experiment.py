@@ -6,6 +6,8 @@ import string
 import numpy as np
 import pandas as pd
 import random
+import pathlib
+import json
 
 #class variables are going to be
 # Model stuff:
@@ -94,7 +96,7 @@ class Model():
 class Experiment():
     info_to_save = [
                     'num_epochs', 'device', 'model_name', 'model_params', 'optimizer_name', 'optimizer_params',
-                    'criterion_name', 'deficit', 'deficit_params', 'trainloader_params', 'testloader_params',
+                    'criterion_name', 'deficit_name', 'deficit_params', 'trainloader_params', 'testloader_params',
 
                     ]
 
@@ -168,6 +170,7 @@ class Experiment():
         else :
             self.deficit = deficit
             self.deficit_params = deficit.deficit_params
+            self.deficit_name = type(self).__name__
             #THis  will set the trainloader
             deficit.Apply_To_Experiment(self)
 
@@ -238,11 +241,10 @@ class Experiment():
         return epoch_loss, epoch_acc
 
 
-
-
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
     def train_model(self):
         self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
+        self.info_to_save['exp_id'] = self.exp_id
 
         self.model.to(self.device)
 
@@ -282,9 +284,7 @@ class Experiment():
 
         dir = self.output_dir + '/data/' + self.exp_id + '/'
 
-        if not os.path.exists(dir):
-            print("making new dir")
-            os.makedirs(dir)
+        pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
 
         df = pd.DataFrame(train_losses, columns=['train_loss']) 
         df.to_csv(dir + 'train_losses.csv', index=False)
@@ -298,28 +298,107 @@ class Experiment():
         df = pd.DataFrame(test_accs, columns=['test_acc']) 
         df.to_csv(dir + 'test_accs.csv', index=False)
 
+        #write the json config file now 
+        # the config will be saved twice, once with the name config.json in the directory
+        # in data corresponding to exp_id, the second time it is saved to configs with 
+        # the file name exp_id.json
+
+        self.serialize_experiment_params(dir + "config.json")
+    
+        dir = self.output_dir + "/configs/"
+        pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+        self.serialize_experiment_params(dir + self.exp_id + ".json")
+        
+
+
         return train_losses, train_accs, test_losses, test_accs
 
 
-import json
-def safe_default(obj):
-    if type(obj) == type:
-        return (obj).__name__
-    else:
-        return str(obj)
+    def serialize_experiment_params(self, filename):
 
-def serialize_experiment_params(experiment : Experiment, filename):
-    obj = {}
+        def safe_default(obj):
+            if type(obj) == type:
+                return (obj).__name__
+            else:
+                return str(obj)
 
-    for field in experiment.info_to_save :
-        obj[field] = getattr(experiment, field)
-    
+        obj = {}
 
-    default = lambda o: safe_default(o)
-    with open(filename, 'w') as file:
-        json.dump(obj, file, default=default,indent=4)
+        for field in self.info_to_save :
+            obj[field] = getattr(self, field)
+
+        default = lambda o: safe_default(o)
+        with open(filename, 'w') as file:
+            json.dump(obj, file, default=default,indent=4)
+
+
+
+def get_data(dir, exp_id):
+    if not os.path.isdir(dir):
+        raise FileNotFoundError("Directory does not exist: {dir}")
+
+    fname = dir + '/data/' + exp_id + '/'
+
+    df = pd.read_csv(fname + 'train_losses.csv')
+    train_losses = df['train_loss'].tolist()
+
+    df = pd.read_csv(fname + 'train_accs.csv')
+    train_accs = df['train_acc'].tolist()
+
+    df = pd.read_csv(fname + 'test_losses.csv')
+    test_losses = df['test_loss'].tolist()
+
+    df = pd.read_csv(fname + 'test_accs.csv')
+    test_accs = df['test_acc'].tolist()
+
+    return train_losses, train_accs, test_losses, test_accs
+
+
+# taken from chatgpt
+def is_subdict(small, big):
+    if not isinstance(small, dict) or not isinstance(big, dict):
+        return False
+    for key, value in small.items():
+        if key not in big:
+            return False
+        if isinstance(value, dict):
+            if not isinstance(big[key], dict):
+                return False
+            if not is_subdict(value, big[key]):
+                return False
+        else:
+            if big[key] != value:
+                return False
+    return True
+
+
+def match_experiments(directories, params):
+    for dir in directories:
+        pass
+
+        #for 
+        #if
+
+small = {
+    "a": 1,
+    "b": {
+        "x": 10,
+        'sub': {'one': 1}
+    }
+}
+
+big = {
+    "a": 1,
+    "b": {
+        "x": 10,
+        "y": 20,
+        'sub': {'on': 2, 'two': 2}
+    },
+    "c": 999
+}
 
 
 if __name__ == '__main__':
+    print( is_subdict(small=small, big = big))
     print('hi')
     

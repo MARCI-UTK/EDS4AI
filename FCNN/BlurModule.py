@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torchvision.transforms import v2
 import torchvision
 from torch.utils.data import DataLoader
+import torch
 
 from Trial import get_datasets
 
@@ -51,13 +52,17 @@ class BlurDeficit(Deficit):
             self.transform_train = v2.Compose([
                 v2.RandomCrop(32, padding=4),
                 v2.RandomHorizontalFlip(),
-                v2.ToTensor(),
+                #v2.ToTensor(),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
                 v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 self.blur_transform,
             ])
 
             self.transform_test = v2.Compose([
-                v2.ToTensor(),
+                #v2.ToTensor(),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
                 v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ])
 

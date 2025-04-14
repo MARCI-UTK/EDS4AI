@@ -1,6 +1,10 @@
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+import os
+import string
+import numpy as np
+import pandas as pd
 
 #class variables are going to be
 # Model stuff:
@@ -116,6 +120,11 @@ class Experiment():
             self.testloader_params = {'batch_size' : 128, 'shuffle' : False}
 
 
+        if 'output_dir' in exp_params:
+            self.output_dir = exp_params['output_dir']
+        else :
+            self.output_dir = 'output'
+
 
     def add_model(self, model_wrapper : Model):
         self.model = model_wrapper.nn
@@ -195,6 +204,7 @@ class Experiment():
 
         epoch_loss = running_loss / total
         epoch_acc = 100.0 * correct / total
+
         return epoch_loss, epoch_acc
 
 
@@ -231,6 +241,8 @@ class Experiment():
 
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
     def train_model(self):
+        self.exp_id = ''.join(np.random.choices(string.ascii_letters + string.digits, size = 8))
+
         self.model.to(self.device)
 
         num_epochs = self.num_epochs
@@ -266,7 +278,24 @@ class Experiment():
                 f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
                 f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
 
-        #return
+
+        dir = self.output_dir + '/data/' + self.exp_id + '/'
+
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        df = pd.DataFrame(train_losses, columns='train_loss') 
+        df.to_csv(dir + 'train_losses.csv', index=False)
+
+        df = pd.DataFrame(train_accs, columns='train_acc') 
+        df.to_csv(dir + 'train_accs.csv', index=False)
+
+        df = pd.DataFrame(test_losses, columns='test_loss') 
+        df.to_csv(dir + 'test_losses.csv', index=False)
+
+        df = pd.DataFrame(test_accs, columns='test_acc') 
+        df.to_csv(dir + 'test_accs.csv', index=False)
+
         return train_losses, train_accs, test_losses, test_accs
 
 

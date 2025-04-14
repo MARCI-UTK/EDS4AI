@@ -5,6 +5,7 @@ import os
 import string
 import numpy as np
 import pandas as pd
+import random
 
 #class variables are going to be
 # Model stuff:
@@ -241,7 +242,7 @@ class Experiment():
 
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
     def train_model(self):
-        self.exp_id = ''.join(np.random.choices(string.ascii_letters + string.digits, size = 8))
+        self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
 
         self.model.to(self.device)
 
@@ -282,18 +283,19 @@ class Experiment():
         dir = self.output_dir + '/data/' + self.exp_id + '/'
 
         if not os.path.exists(dir):
+            print("making new dir")
             os.makedirs(dir)
 
-        df = pd.DataFrame(train_losses, columns='train_loss') 
+        df = pd.DataFrame(train_losses, columns=['train_loss']) 
         df.to_csv(dir + 'train_losses.csv', index=False)
 
-        df = pd.DataFrame(train_accs, columns='train_acc') 
+        df = pd.DataFrame(train_accs, columns=['train_acc']) 
         df.to_csv(dir + 'train_accs.csv', index=False)
 
-        df = pd.DataFrame(test_losses, columns='test_loss') 
+        df = pd.DataFrame(test_losses, columns=['test_loss']) 
         df.to_csv(dir + 'test_losses.csv', index=False)
 
-        df = pd.DataFrame(test_accs, columns='test_acc') 
+        df = pd.DataFrame(test_accs, columns=['test_acc']) 
         df.to_csv(dir + 'test_accs.csv', index=False)
 
         return train_losses, train_accs, test_losses, test_accs

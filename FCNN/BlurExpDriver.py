@@ -19,7 +19,7 @@ exp1 = {
 
     'criterion_name' : 'CrossEntropyLoss',
 
-    'num_epochs' : 4,
+    'num_epochs' : 3,
 
     'deficit_module' : 'BlurModule',
     'deficit_name' : 'BlurDeficit',

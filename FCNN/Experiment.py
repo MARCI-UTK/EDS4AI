@@ -8,6 +8,9 @@ import pandas as pd
 import random
 import pathlib
 import json
+import pathlib
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 #class variables are going to be
 # Model stuff:
@@ -170,7 +173,7 @@ class Experiment():
         else :
             self.deficit = deficit
             self.deficit_params = deficit.deficit_params
-            self.deficit_name = type(self).__name__
+            self.deficit_name = type(self.deficit).__name__
             #THis  will set the trainloader
             deficit.Apply_To_Experiment(self)
 
@@ -243,8 +246,8 @@ class Experiment():
 
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
     def train_model(self):
-        self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
-        self.info_to_save['exp_id'] = self.exp_id
+        #self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
+        #self.info_to_save.append('exp_id') 
 
         self.model.to(self.device)
 
@@ -282,6 +285,9 @@ class Experiment():
                 f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
 
 
+        self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
+        self.info_to_save.append('exp_id') 
+
         dir = self.output_dir + '/data/' + self.exp_id + '/'
 
         pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
@@ -305,9 +311,9 @@ class Experiment():
 
         self.serialize_experiment_params(dir + "config.json")
     
-        dir = self.output_dir + "/configs/"
-        pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
-        self.serialize_experiment_params(dir + self.exp_id + ".json")
+        dir2 = self.output_dir + "/configs/"
+        pathlib.Path(dir2).mkdir(parents=True, exist_ok=True)
+        self.serialize_experiment_params(dir2 + self.exp_id + ".json")
         
 
 
@@ -372,12 +378,43 @@ def is_subdict(small, big):
     return True
 
 
+# takes a list of directoroies and looks through each of those to 
+# see if there exists an experiment that matches the params passed
+# returns a list of exp_ids
 def match_experiments(directories, params):
+    exp_ids = []
     for dir in directories:
-        pass
 
-        #for 
-        #if
+        for file in pathlib.Path(dir + '/configs').iterdir():
+            if file.is_file():
+                fp = file.open()
+                config = json.load(fp)
+                fp.close()
+
+                if is_subdict(params, config):
+                    exp_ids.append(config['exp_id'])
+
+    return exp_ids
+
+
+def plot_exp(dir, exp_id):
+    tr_l, tr_a, te_l, te_a = get_data(dir, exp_id=exp_id)
+
+    epoch_list = np.arange(1, len(tr_l) + 1)
+
+    dic = {'losses':tr_l, 'epoch':epoch_list}
+    df = pd.DataFrame(data=dic)
+    #df = df[150:]
+
+    p = sns.lineplot(data=df, x=df.index, y='losses')
+    p.set_xlabel("Epoch")
+    p.set_ylabel("Avg Cross Entropy Loss")
+    p.set_title("Training Loss")
+
+    plt.savefig('plot.png')
+
+
+
 
 small = {
     "a": 1,
@@ -399,6 +436,8 @@ big = {
 
 
 if __name__ == '__main__':
-    print( is_subdict(small=small, big = big))
+    #print( is_subdict(small=small, big = big))
     print('hi')
+
+    plot_exp('output', 'jmfCGLMA')
     

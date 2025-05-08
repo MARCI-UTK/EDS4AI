@@ -245,7 +245,7 @@ def plot_classes_2d(image_embeddings, targets):
 
     return fig 
 
-def plot_batch_elements(embeddings, batch_indexes):
+def plot_batch_elements(embeddings, batch_indexes, tick_size):
     column_vals = ['x1', 'x2']
 
     df = pd.DataFrame(data = embeddings, columns=column_vals)
@@ -260,7 +260,7 @@ def plot_batch_elements(embeddings, batch_indexes):
     hue_order = ['not chosen', 'batch element']
     df_sorted = df.sort_values('label', key=np.vectorize(hue_order.index))
 
-    plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='label', ec=None, palette="deep")
+    plot = sns.scatterplot(x='x1', y='x2', data=df_sorted, hue='label', ec=None, palette="deep", s=tick_size)
     plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
 
     fig = plot.get_figure()
@@ -309,3 +309,76 @@ def plot_batch_order(embeddings, batch_indexes, batch_size, type='inclusive'):
 
         fig = plot.get_figure()
         return fig
+
+def get_class_embeddings(embeddings, targets, label):
+    targets = np.array(targets)
+    targets = np.expand_dims(targets, 1)
+
+    all_indexes = np.array(range(0, embeddings.shape[0]))
+    all_indexes = np.expand_dims(all_indexes, 1)
+
+    full_data = np.append(embeddings, all_indexes, axis=1) 
+    full_data = np.append(full_data, targets, axis=1) 
+
+    class_data = full_data[ full_data[:,-1] == label ]
+    true_indexes = class_data[:,-2].astype(int)
+    class_data = class_data[:,:-2]
+
+
+    return class_data, true_indexes
+
+# idea behind this code comes from 
+# https://math.stackexchange.com/questions/1652545/multivariate-normal-value-standardization
+from sklearn.preprocessing import power_transform
+def fit_distribution_3(data_points, transform=True):
+    import scipy.linalg
+    if (transform):
+        data_points = power_transform(data_points)
+
+    mu = np.mean(data_points, axis=0)
+    sigma = np.cov(data_points, rowvar=False)
+    # the following is taken from chatgpt
+    centered = data_points - mu
+    sigma_inv_sqrt = scipy.linalg.sqrtm(np.linalg.inv(sigma))
+    L = sigma_inv_sqrt
+    #print(f'simga^(-1/2): {L}')
+
+
+    normalized_data = np.matmul((L), np.transpose(centered))
+    normalized_data = normalized_data.T
+
+    normalized_mean = np.mean(normalized_data, axis=0)
+    normalized_cov = np.cov(normalized_data, rowvar=False)
+
+    #print(normalized_data.shape)
+
+    return normalized_mean, normalized_cov, normalized_data
+
+
+def get_all_quantiles(embeddings, targets, labels, percentage, where, transform=True):
+    quantiles = np.full((len(targets)), -1, dtype=float)
+    for l in labels:
+        class_data, true_indexes = get_class_embeddings(embeddings, targets, l)
+        num_class_points = class_data.shape[0]
+
+        mean, _, standardized_data = fit_distribution_3(class_data, transform)
+
+        distance_list = []
+        for i in range(num_class_points):
+            distance = calc_distance(standardized_data[i, :],  mean)
+            distance_list.append( (distance, true_indexes[i]) )
+
+        sorted_distances = sorted(distance_list, key=lambda x: x[0])
+
+        prev_index = 0
+        for i in np.arange(0.001, 1.001, 0.001):
+            list_index = round(i * num_class_points)
+            quantile_points = sorted_distances[prev_index:list_index]
+
+            for point in quantile_points:
+                true_index = point[1]
+                quantiles[true_index] = i
+
+            prev_index = list_index
+
+    return quantiles

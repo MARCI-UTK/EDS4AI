@@ -26,8 +26,12 @@ class BlurTransform(nn.Module):
     def forward(self,x):
         if (self.current_epoch >= self.start) and (self.current_epoch < self.end) :
             x = self.layers(x)
+            #print(f"x shape {x.shape}")
+            print('transforming')
             #print(x.shape)
+            x = torch.unsqueeze(x, 0)
             x = F.interpolate(x, size=(32, 32), mode='nearest')
+            x = x.squeeze(0)
             return x
         else :
             return x
@@ -83,4 +87,14 @@ class BlurDeficit(Deficit):
         exp.testloader = DataLoader( **(exp.testloader_params) )
         
 
+if __name__ == '__main__':
+    from Trial import get_datasets
 
+    trainset, testset = get_datasets()
+
+    trans = BlurTransform(0, 2)
+
+    img = trainset[0][0]
+
+    trans(img)
+    

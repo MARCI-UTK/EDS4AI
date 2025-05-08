@@ -70,7 +70,7 @@ class Deficit(ABC):
 
 class Model():
     def __init__(self, nn_class, nn_params, optimizer_class, optimizer_params, criterion_class,
-                 trainset, testset, scheduler_class=None):
+                 trainset, testset, scheduler_class=None, scheduler_params=None):
 
         self.nn_class = nn_class
         self.nn_params = nn_params    
@@ -87,10 +87,15 @@ class Model():
         self.criterion = criterion_class()
 
         if scheduler_class == None: 
-            self.scheduler_class = None
 
             #this scheduler does nothing
             self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=100, gamma=1)
+            #self.scheduler_name = self.
+
+        else :
+            scheduler_params['optimizer'] = self.optimizer
+            self.scheduler_params = scheduler_params
+            self.scheduler = torch.optim.lr_scheduler.StepLR( **(self.scheduler_params) )
 
         self.trainset = trainset
         self.testset = testset
@@ -151,6 +156,7 @@ class Experiment():
         self.testset = model_wrapper.testset
 
         self.scheduler = model_wrapper.scheduler
+        #self.info_to_save.append(scheduler.class)
 
 
 
@@ -392,7 +398,8 @@ def match_experiments(directories, params):
                 fp.close()
 
                 if is_subdict(params, config):
-                    exp_ids.append(config['exp_id'])
+                    exp_id = (config['exp_id'])
+                    exp_ids.append( (exp_id, dir) )
 
     return exp_ids
 
@@ -414,6 +421,41 @@ def plot_exp(dir, exp_id):
     plt.savefig('plot.png')
 
 
+def get_config(exp_id, dir):
+    if not os.path.isdir(dir):
+        raise FileNotFoundError("Directory does not exist: {dir}")
+
+    fname = dir + '/data/' + exp_id + '/config.json'
+
+    fp = open(fname, "r")
+    config = json.load(fp) 
+    fp.close
+
+    return config
+    
+
+def plot_blur_removal(exp_ids):
+    accuracies = {}
+
+    for exp_id, dir in exp_ids:
+        _, _, _, test_accs = get_data(dir, exp_id)
+        config = get_config(exp_id, dir)
+
+        end_epoch = config['deficit_params']['end_epoch']
+        acc = test_accs[-1]
+
+        if end_epoch not in accuracies:
+            accuracies[end_epoch] = acc
+        else:
+            print(f'Already plotted end epoch {end_epoch}')
+
+    x = list(accuracies.keys())
+    y = list(accuracies.values())
+
+    df = pd.DataFrame({'epoch':x, 'accuracy':y})
+    s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
+    plt.savefig('blur_removal.png')
+    return s
 
 
 small = {

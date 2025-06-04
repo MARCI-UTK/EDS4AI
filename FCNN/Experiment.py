@@ -12,6 +12,8 @@ import pathlib
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from datetime import datetime
+
 #class variables are going to be
 # Model stuff:
 
@@ -95,6 +97,7 @@ class Model():
         else :
             scheduler_params['optimizer'] = self.optimizer
             self.scheduler_params = scheduler_params
+            self.scheduler_params['optimizer'] = self.optimizer
             self.scheduler = torch.optim.lr_scheduler.StepLR( **(self.scheduler_params) )
 
         self.trainset = trainset
@@ -266,6 +269,9 @@ class Experiment():
 
         # Epochs loop
         for epoch in range(num_epochs):
+            ## IMPORTANT ##
+            # Here is where the deficit is updated
+            self.deficit.blur_transform.set_epoch(epoch)
 
             # Train
             #train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device)
@@ -289,6 +295,13 @@ class Experiment():
                 f" LR: {last_lr:.8f} "
                 f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
                 f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+
+
+
+        # date and time are saved in iso format
+        now = datetime.now()
+        self.datetime = now.isoformat()
+        self.info_to_save.append('datetime')
 
 
         self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))

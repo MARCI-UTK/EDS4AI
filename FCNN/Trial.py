@@ -101,9 +101,9 @@ def Trial(deficit, subset_size, deficit_duration, post_duration, save_dir):
 
     #create deficit - it will be in the form of a custom sampler
     if deficit == 'similarity':
-        sampler = SimilaritySampler(subset_size, quantiles, deficit_duration, 'similarity', shuffle=False) 
+        sampler = SimilaritySampler(subset_size, quantiles, deficit_duration, 'similarity', shuffle=True) 
     elif deficit == 'disimilarity':
-        sampler = SimilaritySampler(subset_size, quantiles, deficit_duration, 'disimilarity', shuffle=False) 
+        sampler = SimilaritySampler(subset_size, quantiles, deficit_duration, 'disimilarity', shuffle=True) 
     else :
         print(f'invalid deficit type {deficit}')
         return
@@ -113,7 +113,7 @@ def Trial(deficit, subset_size, deficit_duration, post_duration, save_dir):
 
     # Device configuration
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     # Initialize the model
@@ -188,7 +188,7 @@ def Trial(deficit, subset_size, deficit_duration, post_duration, save_dir):
 
 
 if __name__ == '__main__' :
-    torch.manual_seed = 0
+    torch.manual_seed(0)
 
     Trial(deficit='similarity', subset_size=0.1, deficit_duration=0,
           post_duration=5, save_dir='test_dir')

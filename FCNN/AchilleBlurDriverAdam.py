@@ -5,7 +5,7 @@ exp1 = {
     'experiment_module' : 'Experiment',
     'experiment_name' : 'Experiment',
 
-    'device' : 'cuda:2',
+    'device' : 'cuda:3',
 
     'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
     'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
@@ -14,11 +14,14 @@ exp1 = {
     'nn_name' : 'FCN_CIFAR10',
     'nn_params' : {'num_classes' : 10},
 
-    'optimizer_name' : 'SGD',
-    'optimizer_params' : {'lr' : 0.05, 'weight_decay':0.001},
+    'optimizer_name' : 'AdamW',
+    'optimizer_params' : {'lr' : 0.001},
 
-    'scheduler_name' : 'StepLR',
-    'scheduler_params' : {'step_size':1, 'gamma':0.97},
+    #'optimizer_name' : 'SGD',
+    #'optimizer_params' : {'lr' : 0.05, 'weight_decay':0.001},
+
+    #'scheduler_name' : 'StepLR',
+    #'scheduler_params' : {'step_size':1, 'gamma':0.97},
 
     'criterion_name' : 'CrossEntropyLoss',
 
@@ -51,8 +54,8 @@ if __name__ == '__main__' :
 
     for deficit_duration in blur_length:
         exp1['deficit_params']['end_epoch'] = deficit_duration
-        exp1['num_epochs'] = deficit_duration + 160
-        exp1['output_dir'] = 'Achille_Blur_Removal_6-4'
+        exp1['num_epochs'] = deficit_duration + 100
+        exp1['output_dir'] = 'Achille_Blur_Removal_Adam_6-4'
 
         from Trial import get_datasets
         
@@ -66,14 +69,14 @@ if __name__ == '__main__' :
         opt = get_class('torch.optim', exp1['optimizer_name'])
         opt_params = exp1['optimizer_params']
 
-        scheuduler = get_class('torch.optim.lr_scheduler', exp1['scheduler_name'])
-        scheduler_params = exp1['scheduler_params']
+        #scheuduler = get_class('torch.optim.lr_scheduler', exp1['scheduler_name'])
+        #scheduler_params = exp1['scheduler_params']
 
         criterion_class = get_class('torch.nn', exp1['criterion_name'])
 
         model_wrapper = Experiment.Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
-                                        criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=scheuduler,
-                                        scheduler_params=scheduler_params)
+                                        criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=None,
+                                        scheduler_params=None)
 
 
         deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])

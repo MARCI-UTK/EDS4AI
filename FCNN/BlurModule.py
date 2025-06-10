@@ -27,7 +27,7 @@ class BlurTransform(nn.Module):
         if (self.current_epoch >= self.start) and (self.current_epoch < self.end) :
             x = self.layers(x)
             #print(f"x shape {x.shape}")
-            print('transforming')
+            #print('transforming')
             #print(x.shape)
             x = torch.unsqueeze(x, 0)
             x = F.interpolate(x, size=(32, 32), mode='nearest')
@@ -54,13 +54,14 @@ class BlurDeficit(Deficit):
             self.blur_transform = BlurTransform(start_epoch, end_epoch)
 
             self.transform_train = v2.Compose([
-                v2.RandomCrop(32, padding=4),
-                v2.RandomHorizontalFlip(),
+                #v2.RandomCrop(32, padding=4),
+                #v2.RandomHorizontalFlip(),
                 #v2.ToTensor(),
+                #v2.functional.invert(),
                 v2.ToImage(),
                 v2.ToDtype(torch.float32, scale=True),
-                v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 self.blur_transform,
+                v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ])
 
             self.transform_test = v2.Compose([

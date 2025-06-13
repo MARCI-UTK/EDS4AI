@@ -273,7 +273,8 @@ class Experiment():
         for epoch in range(num_epochs):
             ## IMPORTANT ##
             # Here is where the deficit is updated
-            self.deficit.blur_transform.set_epoch(epoch)
+            #self.deficit.blur_transform.set_epoch(epoch)
+            self.deficit.update_deficit(epoch)
 
             # Train
             #train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device)

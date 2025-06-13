@@ -12,7 +12,7 @@ import numpy as np
 # If running in a notebook, enable inline plots
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Using device:", device)
+#print("Using device:", device)
 
 # set random seed
 torch.manual_seed(45)

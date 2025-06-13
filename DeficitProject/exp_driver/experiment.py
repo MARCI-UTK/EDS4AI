@@ -495,6 +495,30 @@ big = {
 }
 
 
+def plot_acc_per_subset_size(exp_list):
+    accuracies = {}
+
+    for exp_id, dir in exp_list:
+        _, _, _, test_accs = get_data(dir, exp_id)
+        config = get_config(exp_id, dir)
+
+        subset_size = config['deficit_params']['subset_size']
+        acc = test_accs[-1]
+
+        if subset_size not in accuracies:
+            accuracies[subset_size] = acc
+        else:
+            print(f'Already plotted subset_size {subset_size}')
+
+    x = list(accuracies.keys())
+    y = list(accuracies.values())
+
+    df = pd.DataFrame({'subset size':x, 'accuracy':y})
+    s = sns.lineplot(data=df, x='subset size', y='accuracy', marker='o')
+    plt.savefig('acc_subset_size.png')
+    return s
+
+
 if __name__ == '__main__':
     #print( is_subdict(small=small, big = big))
     print('hi')

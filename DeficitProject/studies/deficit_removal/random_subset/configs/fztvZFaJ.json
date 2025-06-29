@@ -1,0 +1,39 @@
+{
+    "num_epochs": 570,
+    "device": "cuda:2",
+    "model_name": "AllCNN_WBN",
+    "model_params": {
+        "num_classes": 10,
+        "hidden_dropout_prob": 0.3,
+        "input_dropout_prob": 0
+    },
+    "optimizer_name": "SGD",
+    "optimizer_params": {
+        "lr": 0.05,
+        "weight_decay": 0.001,
+        "momentum": 0.9,
+        "params": "<generator object Module.parameters at 0x7f5a30959700>"
+    },
+    "criterion_name": "CrossEntropyLoss",
+    "deficit_name": "CIFAR10SubsetDeficit",
+    "deficit_params": {
+        "start_epoch": 0,
+        "root_dir": "../data",
+        "dataset": "CIFAR10",
+        "end_epoch": 320,
+        "subset_size": 0.1
+    },
+    "trainloader_params": {
+        "batch_size": 128,
+        "num_workers": 8,
+        "dataset": "Dataset CIFAR10\n    Number of datapoints: 50000\n    Root location: ../data\n    Split: Train\n    StandardTransform\nTransform: Compose(\n                 RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant)\n                 RandomHorizontalFlip(p=0.5)\n                 ToImage()\n                 ToDtype(scale=True)\n                 Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261], inplace=False)\n           )",
+        "sampler": "<implementations.deficits.cifar10_subset_deficit.RandomSampler object at 0x7f5a30aebc90>"
+    },
+    "testloader_params": {
+        "batch_size": 128,
+        "num_workers": 8,
+        "dataset": "Dataset CIFAR10\n    Number of datapoints: 10000\n    Root location: ../data\n    Split: Test\n    StandardTransform\nTransform: Compose(\n                 ToImage()\n                 ToDtype(scale=True)\n                 Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261], inplace=False)\n           )"
+    },
+    "datetime": "2025-06-27T03:31:56.662681",
+    "exp_id": "fztvZFaJ"
+}

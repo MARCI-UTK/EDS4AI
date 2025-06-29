@@ -33,15 +33,15 @@ def get_ciafar10_data ():
     return images_transposed, labels
 
 # For some reason this code crashes when imported and run
-def gen_2d_embeddings(images, num_embeddings):
+def gen_2d_embeddings(images):
     model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     image_processor = AutoProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
     image_embeddings = np.empty((0,512))
 
     # number of images is too large to run clip on all of them so we have to do it in 1000 image batches
-    for i in range(60):
-        images_slice = images[ (1000*i): (1000*(i+1)) ][:][:][:]
+    for i in range(0, len(images), 1000):
+        images_slice = images[ i: i+1000 ][:][:][:]
 
         clip_inputs = image_processor(images=images_slice, return_tensors="pt")
         clip_outputs = model.get_image_features(**clip_inputs).detach()

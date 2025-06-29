@@ -1,0 +1,37 @@
+{
+    "num_epochs": 420,
+    "device": "cuda:3",
+    "model_name": "AllCNN_WBN",
+    "model_params": {
+        "num_classes": 10,
+        "hidden_dropout_prob": 0.3,
+        "input_dropout_prob": 0
+    },
+    "optimizer_name": "SGD",
+    "optimizer_params": {
+        "lr": 0.05,
+        "weight_decay": 0.001,
+        "momentum": 0.9,
+        "params": "<generator object Module.parameters at 0x7f10964bfe60>"
+    },
+    "criterion_name": "CrossEntropyLoss",
+    "deficit_name": "BlurDeficit",
+    "deficit_params": {
+        "start_epoch": 0,
+        "root_dir": "../data",
+        "dataset": "CIFAR10",
+        "end_epoch": 260
+    },
+    "trainloader_params": {
+        "batch_size": 128,
+        "shuffle": true,
+        "dataset": "Dataset CIFAR10\n    Number of datapoints: 50000\n    Root location: ../data\n    Split: Train\n    StandardTransform\nTransform: Compose(\n                 ToImage()\n                 ToDtype(scale=True)\n                 BlurTransform(\n               (layers): Sequential(\n                 (0): MaxPool2d(kernel_size=4, stride=4, padding=0, dilation=1, ceil_mode=False)\n               )\n             )\n                 Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261], inplace=False)\n           )"
+    },
+    "testloader_params": {
+        "batch_size": 128,
+        "shuffle": false,
+        "dataset": "Dataset CIFAR10\n    Number of datapoints: 10000\n    Root location: ../data\n    Split: Test\n    StandardTransform\nTransform: Compose(\n                 ToImage()\n                 ToDtype(scale=True)\n                 Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261], inplace=False)\n           )"
+    },
+    "datetime": "2025-06-11T12:22:51.109178",
+    "exp_id": "j3oY2p58"
+}

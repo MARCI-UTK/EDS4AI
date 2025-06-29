@@ -202,6 +202,7 @@ class Experiment():
         correct = 0
         total = 0
 
+        #print(f'loader length: {len(loader)}')
         for images, labels in loader:
             images, labels = images.to(device), labels.to(device)
 
@@ -405,7 +406,7 @@ def is_subdict(small, big):
 # takes a list of directoroies and looks through each of those to 
 # see if there exists an experiment that matches the params passed
 # returns a list of exp_ids
-def match_experiments(directories, params):
+def match_experiments(directories, params, dt=datetime.min):
     exp_ids = []
     for dir in directories:
 
@@ -416,8 +417,9 @@ def match_experiments(directories, params):
                 fp.close()
 
                 if is_subdict(params, config):
-                    exp_id = (config['exp_id'])
-                    exp_ids.append( (exp_id, dir) )
+                    if datetime.fromisoformat(config['datetime']) > dt:
+                        exp_id = (config['exp_id'])
+                        exp_ids.append( (exp_id, dir) )
 
     return exp_ids
 
@@ -452,8 +454,31 @@ def get_config(exp_id, dir):
     return config
     
 
-def plot_blur_removal(exp_ids):
+def plot_deficit_removal(exp_ids, title='Blur Removal', filename='blur_removal.png'):
+    #accuracies = {}
+
+    #for exp_id, dir in exp_ids:
+        #_, _, _, test_accs = get_data(dir, exp_id)
+        #config = get_config(exp_id, dir)
+
+        #end_epoch = config['deficit_params']['end_epoch']
+        #acc = test_accs[-1]
+
+        #if end_epoch not in accuracies:
+            #accuracies[end_epoch] = acc
+        #else:
+            #print(f'Already plotted end epoch {end_epoch}')
+
+    #x = list(accuracies.keys())
+    #y = list(accuracies.values())
+
+    #df = pd.DataFrame({'epoch':x, 'accuracy':y})
+    #s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
+    #s.set_title(title)
+    #plt.savefig(filename)
+    #return s
     accuracies = {}
+    nodeficit = ()
 
     for exp_id, dir in exp_ids:
         _, _, _, test_accs = get_data(dir, exp_id)
@@ -464,6 +489,9 @@ def plot_blur_removal(exp_ids):
 
         if end_epoch not in accuracies:
             accuracies[end_epoch] = acc
+
+            if end_epoch == 0 :
+                nodeficit = (exp_id, dir)
         else:
             print(f'Already plotted end epoch {end_epoch}')
 
@@ -472,8 +500,75 @@ def plot_blur_removal(exp_ids):
 
     df = pd.DataFrame({'epoch':x, 'accuracy':y})
     s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
-    plt.savefig('blur_removal.png')
+
+    _, _, _, test_accs = get_data(nodeficit[1], nodeficit[0])
+    df2 = pd.DataFrame({'epoch':np.arange(len(test_accs)), 'accuracy':test_accs})
+    sns.lineplot(data=df2, x='epoch', y='accuracy')
+
+    s.set_title(title)
+    plt.savefig(filename)
     return s
+
+
+def plot_all_deficit_removal(exp_ids_list, deficit_names, title="Deficit Removal", 
+                             filename="all_deficit_removal.png"):
+    
+    x = []
+    y = []
+    z = []
+
+    for i, deficit_name in enumerate(deficit_names):
+        accuracies = {}
+
+        for exp_id, dir in exp_ids_list[i]:
+            _, _, _, test_accs = get_data(dir, exp_id)
+            config = get_config(exp_id, dir)
+
+            end_epoch = config['deficit_params']['end_epoch']
+            acc = test_accs[-1]
+
+            if end_epoch not in accuracies:
+                accuracies[end_epoch] = acc
+            else:
+                print(f'Already plotted end epoch {end_epoch}')
+
+        x = x + list(accuracies.keys())
+        y = y + list(accuracies.values())
+
+        name_list = [deficit_name] * len(accuracies)
+        z = z + name_list
+
+        #print(f'length x: {len(x)}, length z: {len(z)}')
+
+    df = pd.DataFrame({'epoch':x, 'accuracy':y, "deficit_name":z})
+    s = sns.lineplot(data=df, x='epoch', y='accuracy', hue='deficit_name', marker='o')
+    s.set_title(title)
+    plt.savefig(filename)
+    return s
+
+
+#def plot_blur_removal(exp_ids):
+    #accuracies = {}
+
+    #for exp_id, dir in exp_ids:
+        #_, _, _, test_accs = get_data(dir, exp_id)
+        #config = get_config(exp_id, dir)
+
+        #end_epoch = config['deficit_params']['end_epoch']
+        #acc = test_accs[-1]
+
+        #if end_epoch not in accuracies:
+            #accuracies[end_epoch] = acc
+        #else:
+            #print(f'Already plotted end epoch {end_epoch}')
+
+    #x = list(accuracies.keys())
+    #y = list(accuracies.values())
+
+    #df = pd.DataFrame({'epoch':x, 'accuracy':y})
+    #s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
+    #plt.savefig('blur_removal.png')
+    #return s
 
 
 small = {
@@ -517,6 +612,115 @@ def plot_acc_per_subset_size(exp_list):
     s = sns.lineplot(data=df, x='subset size', y='accuracy', marker='o')
     plt.savefig('acc_subset_size.png')
     return s
+
+def plot_all_deficit_removal(exp_ids_list, deficit_names, title="Deficit Removal", 
+                             filename="all_deficit_removal.png"):
+    
+    x = []
+    y = []
+    z = []
+
+    for i, deficit_name in enumerate(deficit_names):
+        accuracies = {}
+
+        for exp_id, dir in exp_ids_list[i]:
+            _, _, _, test_accs = get_data(dir, exp_id)
+            config = get_config(exp_id, dir)
+
+            end_epoch = config['deficit_params']['end_epoch']
+            acc = test_accs[-1]
+
+            if end_epoch not in accuracies:
+                accuracies[end_epoch] = acc
+            else:
+                print(f'Already plotted end epoch {end_epoch}')
+
+        x = x + list(accuracies.keys())
+        y = y + list(accuracies.values())
+
+        name_list = [deficit_name] * len(accuracies)
+        z = z + name_list
+
+        #print(f'length x: {len(x)}, length z: {len(z)}')
+
+    df = pd.DataFrame({'epoch':x, 'accuracy':y, "deficit_name":z})
+    s = sns.lineplot(data=df, x='epoch', y='accuracy', hue='deficit_name', marker='o')
+    s.set_title(title)
+    plt.savefig(filename)
+    return s
+
+def plot_all_acc_per_subset_size(exp_ids_list, deficit_names, title="Subset accuracy", 
+                             filename="all_subset_accuracy.png"):
+    x = []
+    y = []
+    z = []
+
+    for i, deficit_name in enumerate(deficit_names):
+        accuracies = {}
+
+        for exp_id, dir in exp_ids_list[i]:
+            _, _, _, test_accs = get_data(dir, exp_id)
+            config = get_config(exp_id, dir)
+
+            subset_size = config['deficit_params']['subset_size']
+            acc = test_accs[-1]
+
+            if subset_size not in accuracies:
+                accuracies[subset_size] = acc
+            else:
+                print(f'Already plotted subset_size {subset_size}')
+
+        x = x + list(accuracies.keys())
+        y = y + list(accuracies.values())
+
+        name_list = [deficit_name] * len(accuracies)
+        z = z + name_list
+
+    df = pd.DataFrame({'subset size':x, 'accuracy':y, 'deficit name':z})
+    s = sns.lineplot(data=df, x='subset size', y='accuracy', hue='deficit name', marker='o')
+    s.set_title(title)
+    plt.savefig(filename)
+    return s
+
+def plot_table_acc_per_subset_size(exp_ids_list, deficit_names, title="Subset accuracy", 
+                             filename="all_subset_accuracy.png"):
+    x = []
+    y = []
+    z = []
+
+    for i, deficit_name in enumerate(deficit_names):
+        accuracies = {}
+
+        for exp_id, dir in exp_ids_list[i]:
+            _, _, _, test_accs = get_data(dir, exp_id)
+            config = get_config(exp_id, dir)
+
+            subset_size = config['deficit_params']['subset_size']
+            acc = test_accs[-1]
+
+            if subset_size not in accuracies:
+                accuracies[subset_size] = acc
+            else:
+                print(f'Already plotted subset_size {subset_size}')
+
+        x = x + list(accuracies.keys())
+        y = y + list(accuracies.values())
+
+        name_list = [deficit_name] * len(accuracies)
+        z = z + name_list
+
+    df = pd.DataFrame({'subset size':x, 'accuracy':y, 'deficit name':z})
+
+    table = df.pivot(index='subset size', columns='deficit name', values='accuracy')
+    fix, ax = plt.subplots()
+
+    ax.axis('off')
+    #png_table = pd.plotting.table(ax, table, loc='center',
+                          #cellLoc='center', colWidths=list([.2, .2]))
+    png_table = pd.plotting.table(ax, table)
+    plt.show()
+    print(png_table)
+
 
 
 if __name__ == '__main__':

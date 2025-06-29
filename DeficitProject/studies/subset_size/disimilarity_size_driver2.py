@@ -1,3 +1,4 @@
+import numpy as np
 
 from exp_driver.experiment import Experiment
 from exp_driver.deficit import Deficit
@@ -8,10 +9,10 @@ exp1 = {
     'experiment_module' : 'Experiment',
     'experiment_name' : 'Experiment',
 
-    'device' : 'cuda:2',
+    'device' : 'cuda:1',
 
-    'trainloader_params': { 'batch_size' : 128, 'shuffle' : True, 'num_workers' : 8},
-    'testloader_params': { 'batch_size' : 128, 'shuffle' : False, 'num_workers' : 8},
+    'trainloader_params': { 'batch_size' : 128, 'num_workers' : 8},
+    'testloader_params': { 'batch_size' : 128, 'num_workers' : 8},
 
     'nn_module' : "implementations.models.AllCNN_WBN",
     'nn_name' : 'AllCNN_WBN',
@@ -30,9 +31,8 @@ exp1 = {
     #'deficit_params' : {'start_epoch':0, 'root_dir':'../data', 'dataset':'CIFAR10'},
     'deficit_module' : 'implementations.deficits.SimilarityModule',
     'deficit_name' : 'SimilarityTypeDeficit',
-    #'deficit_params' : {'start_epoch':0, 'root_dir':'../data', 'dataset':'CIFAR10'},
-    'deficit_params' : {'start_epoch':0, 'end_epoch': 4, 'subset_size':0.6, 'data':'CIFAR10',
-                        'root_dir':'../data'},
+    'deficit_params' : {'start_epoch':0, 'end_epoch': 4, 'subset_size':0.6, 'type':'disimilarity', 
+                        'data':'CIFAR10', 'root_dir':'../data'},
 
 }
     
@@ -47,6 +47,7 @@ def get_class(module_name, class_name):
         exit()
 
 #subset_size =  [10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 93, 96, 100]
+#subset_size =  [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 subset_size =  [0.8, 0.85, 0.9, 0.93, 0.96, 1]
 duration = 150
 
@@ -56,9 +57,12 @@ if __name__ == '__main__' :
         exp1['deficit_params']['end_epoch'] = duration
         exp1['deficit_params']['subset_size'] = size
         exp1['num_epochs'] = duration
-        exp1['output_dir'] = 'studies/subset_size/random_subset_results'
+        exp1['output_dir'] = 'studies/subset_size/different_size_disimilarity'
 
         trainset, testset = None, None
+
+        quantiles = np.load('studies/subset_size/CIFAR10_train_quantiles.npy')
+        exp1['deficit_params']['quantiles'] = quantiles
 
         experiment = Experiment(exp1)
 
@@ -80,7 +84,7 @@ if __name__ == '__main__' :
 
         deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])
         deficit_params = exp1['deficit_params']
-        deficit = deficit_class(deficit_params)
+        deficit = deficit_class(**deficit_params)
 
         experiment.add_model(model_wrapper=model_wrapper)
 

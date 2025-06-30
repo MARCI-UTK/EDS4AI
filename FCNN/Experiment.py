@@ -334,7 +334,9 @@ class Experiment():
         pathlib.Path(dir2).mkdir(parents=True, exist_ok=True)
         self.serialize_experiment_params(dir2 + self.exp_id + ".json")
         
+        print(f"finished writing experiment id: { self.exp_id}")
 
+        
 
         return train_losses, train_accs, test_losses, test_accs
 
@@ -433,6 +435,22 @@ def plot_exp(dir, exp_id):
 
     plt.savefig('plot.png')
 
+def plot_exp_te_acc(dir, exp_id):
+    tr_l, tr_a, te_l, te_a = get_data(dir, exp_id=exp_id)
+
+    epoch_list = np.arange(1, len(tr_l) + 1)
+
+    dic = {'accuracies':te_a, 'epoch':epoch_list}
+    df = pd.DataFrame(data=dic)
+    #df = df[150:]
+
+    p = sns.lineplot(data=df, x=df.index, y='accuracies')
+    p.set_xlabel("Epoch")
+    p.set_ylabel("Avg Accuracy")
+    p.set_title("Testing Accuaracy")
+
+    plt.savefig('plot.png')
+
 
 def get_config(exp_id, dir):
     if not os.path.isdir(dir):
@@ -447,8 +465,9 @@ def get_config(exp_id, dir):
     return config
     
 
-def plot_blur_removal(exp_ids):
+def plot_blur_removal(exp_ids, title='Blur Removal', filename='blur_removal.png'):
     accuracies = {}
+    nodeficit = ()
 
     for exp_id, dir in exp_ids:
         _, _, _, test_accs = get_data(dir, exp_id)
@@ -459,6 +478,9 @@ def plot_blur_removal(exp_ids):
 
         if end_epoch not in accuracies:
             accuracies[end_epoch] = acc
+
+            if end_epoch == 0 :
+                nodeficit = (exp_id, dir)
         else:
             print(f'Already plotted end epoch {end_epoch}')
 
@@ -467,7 +489,13 @@ def plot_blur_removal(exp_ids):
 
     df = pd.DataFrame({'epoch':x, 'accuracy':y})
     s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
-    plt.savefig('blur_removal.png')
+
+    _, _, _, test_accs = get_data(nodeficit[1], nodeficit[0])
+    df2 = pd.DataFrame({'epoch':np.arange(len(test_accs)), 'accuracy':test_accs})
+    sns.lineplot(data=df2, x='epoch', y='accuracy')
+
+    s.set_title(title)
+    plt.savefig(filename)
     return s
 
 

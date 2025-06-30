@@ -5,6 +5,7 @@ import numpy as np
 from similarity_cosinesim import gen_clip_embeddings, get_class_embeddings, gen_quantiles
 
 
+
 if __name__ == "__main__" :
     trainset = torchvision.datasets.CIFAR10("../data", train=True, download=False)
     data = trainset.data

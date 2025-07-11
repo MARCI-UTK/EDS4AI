@@ -7,8 +7,10 @@ exp1 = {
 
     'device' : 'cuda:2',
 
-    'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
-    'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
+    #'trainloader_params': { 'batch_size' : 128, 'shuffle' : True},
+    #'testloader_params': { 'batch_size' : 128, 'shuffle' : False},
+    'trainloader_params': { 'batch_size' : 128, 'num_workers' : 8},
+    'testloader_params': { 'batch_size' : 128, 'num_workers' : 8},
 
     'nn_module' : "AllCNN_WBN",
     'nn_name' : 'AllCNN_WBN',
@@ -44,13 +46,15 @@ def get_class(module_name, class_name):
 
 
 #blur_length = [0, 20, 40, 60, 80, 100, 120, 140]
-blur_length = [0, 10, 20, 40, 60, 80]
+#blur_length = [0, 10, 20, 40, 60, 80]
+#blur_length = [160, 180, 200]
+blur_length = [280, 300, 320, 340]
 
 if __name__ == '__main__' :
 
     for deficit_duration in blur_length:
         exp1['deficit_params']['end_epoch'] = deficit_duration
-        exp1['num_epochs'] = deficit_duration + 160
+        exp1['num_epochs'] = deficit_duration + 200
         exp1['output_dir'] = 'WBN_Blur_6-5'
 
         from Trial import get_datasets
@@ -85,18 +89,3 @@ if __name__ == '__main__' :
         experiment.add_deficit(deficit=deficit)
 
         experiment.train_model()
-
-
-
-        deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])
-        deficit_params = exp1['deficit_params']
-        deficit = deficit_class(deficit_params)
-
-        experiment.add_model(model_wrapper=model_wrapper)
-
-
-        experiment.add_deficit(deficit=deficit)
-
-        experiment.train_model()
-
-

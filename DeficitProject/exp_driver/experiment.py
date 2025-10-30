@@ -257,7 +257,7 @@ class Experiment():
 
 
     #def train_model(model, num_epochs, train_loader, test_loader, optimizer, scheduler, device):
-    def train_model(self):
+    def train_model(self, verbose=False):
         #self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
         #self.info_to_save.append('exp_id') 
 
@@ -295,10 +295,12 @@ class Experiment():
             last_lr = scheduler.get_last_lr()[0]
 
             # Output progress
-            print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                f" LR: {last_lr:.8f} "
-                f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
-                f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+            if verbose == True:
+                print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                    f" LR: {last_lr:.8f} "
+                    f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
+                    f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+            
 
 
 
@@ -338,7 +340,8 @@ class Experiment():
         pathlib.Path(dir2).mkdir(parents=True, exist_ok=True)
         self.serialize_experiment_params(dir2 + self.exp_id + ".json")
         
-        print(f"finished writing experiment id: { self.exp_id}")
+        #print(f"finished writing experiment id: { self.exp_id}")
+        print(f"writing exp {self.exp_id}    to {self.output_dir}")
 
         
 
@@ -363,8 +366,10 @@ class Experiment():
             json.dump(obj, file, default=default,indent=4)
 
 
-
-def get_data(dir, exp_id):
+### CAUTION: I REARRANGED THE ARGUMENTS FOR get_data
+#you can see the original below, if stuff breaks it might be because of this
+#def get_data(dir, exp_id):
+def get_data(exp_id, dir):
     if not os.path.isdir(dir):
         raise FileNotFoundError("Directory does not exist: {dir}")
 

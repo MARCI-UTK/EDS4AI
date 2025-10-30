@@ -49,7 +49,7 @@ def get_class(module_name, class_name):
 #subset_size =  [10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 93, 96, 100]
 #subset_size =  [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 subset_size =  [0.8, 0.85, 0.9, 0.93, 0.96, 1]
-duration = 150
+duration = 250
 
 if __name__ == '__main__' :
 

@@ -32,20 +32,20 @@ def plot_all_deficit_removal_with_size(end_epochs, subset_sizes, params_list, di
                 sizes.append(subset_size)
                 
     df = pd.DataFrame({
-        "accuracy" : accuracies,
-        "epoch" : epochs,
-        "line_label" : labels,
-        "subset_size" : sizes,
+        "Accuracy" : accuracies,
+        "Epoch" : epochs,
+        "Deficit Type" : labels,
+        "Subset Size" : sizes,
     })
 
     sns.set(style="whitegrid")
     plt.figure(figsize=(12, 6))
     sns.lineplot(
         data=df,
-        x="epoch",
-        y="accuracy",
-        hue="subset_size",
-        style="line_label",
+        x="Epoch",
+        y="Accuracy",
+        hue="Subset Size",
+        style="Deficit Type",
         #palette="viridis",
         palette="Set1",
         linewidth=2

@@ -296,10 +296,13 @@ class Experiment():
 
             # Output progress
             if verbose == True:
-                print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                    f" LR: {last_lr:.8f} "
-                    f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
-                    f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+                if((epoch)%50 == 0):
+                        print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                        f" LR: {last_lr:.8f} "
+                        f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
+                        f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+                        print(f"   Time: {str(datetime.now())}")
+                    
             
 
 
@@ -364,6 +367,10 @@ class Experiment():
         default = lambda o: safe_default(o)
         with open(filename, 'w') as file:
             json.dump(obj, file, default=default,indent=4)
+
+    
+    def save_model(self, fname):
+        torch.save(self.model.state_dict(), self.output_dir + "/" + fname)
 
 
 ### CAUTION: I REARRANGED THE ARGUMENTS FOR get_data
@@ -484,9 +491,12 @@ def plot_deficit_removal(exp_ids, title='Blur Removal', filename='blur_removal.p
     #return s
     accuracies = {}
     nodeficit = ()
+    nodeficit_duration = 0
 
     for exp_id, dir in exp_ids:
-        _, _, _, test_accs = get_data(dir, exp_id)
+        #fixed
+        #_, _, _, test_accs = get_data(dir, exp_id)
+        _, _, _, test_accs = get_data(exp_id, dir)
         config = get_config(exp_id, dir)
 
         end_epoch = config['deficit_params']['end_epoch']
@@ -495,8 +505,9 @@ def plot_deficit_removal(exp_ids, title='Blur Removal', filename='blur_removal.p
         if end_epoch not in accuracies:
             accuracies[end_epoch] = acc
 
-            if end_epoch == 0 :
+            if end_epoch == 0 and config["num_epochs"] > nodeficit_duration:
                 nodeficit = (exp_id, dir)
+                nodeficit_duration = config["num_epochs"]
         else:
             print(f'Already plotted end epoch {end_epoch}')
 
@@ -506,7 +517,9 @@ def plot_deficit_removal(exp_ids, title='Blur Removal', filename='blur_removal.p
     df = pd.DataFrame({'epoch':x, 'accuracy':y})
     s = sns.lineplot(data=df, x='epoch', y='accuracy', marker='o')
 
-    _, _, _, test_accs = get_data(nodeficit[1], nodeficit[0])
+    #fixed after get_data change
+    #_, _, _, test_accs = get_data(nodeficit[1], nodeficit[0])
+    _, _, _, test_accs = get_data(nodeficit[0], nodeficit[1])
     df2 = pd.DataFrame({'epoch':np.arange(len(test_accs)), 'accuracy':test_accs})
     sns.lineplot(data=df2, x='epoch', y='accuracy')
 
@@ -629,7 +642,8 @@ def plot_all_deficit_removal(exp_ids_list, deficit_names, title="Deficit Removal
         accuracies = {}
 
         for exp_id, dir in exp_ids_list[i]:
-            _, _, _, test_accs = get_data(dir, exp_id)
+            #_, _, _, test_accs = get_data(dir, exp_id)
+            _, _, _, test_accs = get_data(exp_id, dir)
             config = get_config(exp_id, dir)
 
             end_epoch = config['deficit_params']['end_epoch']

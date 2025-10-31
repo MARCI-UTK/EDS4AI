@@ -46,7 +46,8 @@ def get_class(module_name, class_name):
 
 
 #durations = [10, 20, 30, 40]
-durations = [40, 80]
+#durations = [40, 80]
+durations = [40]
 #onsets = [0, 20, 40, 60, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520]
 onsets = [0, 10, 20, 30, 40]
 subset_sizes = [0.1]

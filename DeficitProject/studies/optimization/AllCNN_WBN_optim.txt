@@ -1,0 +1,13 @@
+[I 2025-06-13 08:58:24,584] Trial 99 finished with value: 92.25 and parameters: {'hidden_dropout_probability': 0.052632500325691896, 'optimzer': 'Adam', 'lr': 0.0009239604280276977, 'weight_decay_rate': 9.77345236201454e-05, 'gamma_rate': 0.2759755197792315}. Best is trial 71 with value: 92.49.
+Study statistics:
+  Number of finished trials:  100
+  Number of pruned trials:  77
+  Number of complete trials:  23
+Best trial:
+  Value:  92.49
+  Params:
+    hidden_dropout_probability: 0.16727544234681513
+    optimzer: Adam
+    lr: 0.003059234133862225
+    weight_decay_rate: 2.7456568023592923e-05
+    gamma_rate: 0.2141008240517312

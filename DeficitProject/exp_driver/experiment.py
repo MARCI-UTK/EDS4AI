@@ -140,6 +140,11 @@ class Experiment():
             self.output_dir = exp_params['output_dir']
         else :
             self.output_dir = 'output'
+        
+        if 'save_epochs' in exp_params:
+            self.save_epochs = exp_params['save_epochs']
+        else :
+            self.save_epochs = []
 
 
     def add_model(self, model_wrapper : Model):
@@ -270,6 +275,8 @@ class Experiment():
         train_losses, train_accs = [], []
         test_losses, test_accs = [], []
 
+        self.exp_id = ''
+
         # Epochs loop
         for epoch in range(num_epochs):
             ## IMPORTANT ##
@@ -296,14 +303,31 @@ class Experiment():
 
             # Output progress
             if verbose == True:
-                if((epoch)%50 == 0):
-                        print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                        f" LR: {last_lr:.8f} "
-                        f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
-                        f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
-                        print(f"   Time: {str(datetime.now())}")
+                #if((epoch)%50 == 0):
+                        #print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                        #f" Train Loss: {train_loss:.4f} | Val Acc: {val_acc:.2f}% ")
+                        #print(f"   Time: {str(datetime.now())}")
+
+                        #print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                        #f" LR: {last_lr:.8f} "
+                        #f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
+                        #f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+                        #print(f"   Time: {str(datetime.now())}")
                     
-            
+                print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% ")
+                print(f"   Time: {str(datetime.now())}")
+
+            # Save model if save epoch
+            if epoch in self.save_epochs:
+                if self.exp_id == '':
+                    self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
+
+                dir = self.output_dir + "/data/" + self.exp_id + "/"
+                pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+
+                path = dir + "model_epoch_" + str(epoch) + ".pth"
+                torch.save(self.model.state_dict(), path)
 
 
 
@@ -313,7 +337,8 @@ class Experiment():
         self.info_to_save.append('datetime')
 
 
-        self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
+        if self.exp_id == '':
+            self.exp_id = ''.join(random.choices(string.ascii_letters + string.digits, k = 8))
         self.info_to_save.append('exp_id') 
 
         dir = self.output_dir + '/data/' + self.exp_id + '/'
@@ -347,6 +372,7 @@ class Experiment():
         print(f"writing exp {self.exp_id}    to {self.output_dir}")
 
         
+
 
         return train_losses, train_accs, test_losses, test_accs
 

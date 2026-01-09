@@ -78,7 +78,7 @@ class BlurDeficit(Deficit):
             raise Exception(f"Dataset {deficit_params['dataset']} not implemented")
 
     def update_deficit(self, epoch):
-        self.transform.set_epoch(epoch)
+        self.blur_transform.set_epoch(epoch)
 
     def Apply_To_Experiment(self, exp):
         exp.trainloader_params['dataset'] = self.trainset

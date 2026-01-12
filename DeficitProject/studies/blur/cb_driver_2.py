@@ -18,11 +18,8 @@ exp1 = {
     'nn_name' : 'AllCNN_WBN',
     'nn_params' : {'num_classes' : 10, 'hidden_dropout_prob' : 0.3, 'input_dropout_prob' : 0},
 
-    'optimizer_name' : 'SGD',
-    'optimizer_params' : {'lr' : 0.05, 'weight_decay':0.001, 'momentum' : 0.9},
-
-    'scheduler_name' : 'StepLR',
-    'scheduler_params' : {'step_size':1, 'gamma':0.97},
+    'optimizer_name' : 'Adam',
+    'optimizer_params' : {'lr' : 0.001},
 
     'criterion_name' : 'CrossEntropyLoss',
 
@@ -45,17 +42,22 @@ def get_class(module_name, class_name):
         exit()
 
 
-durations = [0, 20, 40, 80, 120, 160, 200, 240, 280]
+durations = [300, 450]
+#durations = [1]
 #durations = [320, 360, 400, 440, 480, 520]
-subset_sizes = [0.1]
 post_duration = 250
+#post_duration = 1
 
 if __name__ == '__main__' :
 
     for deficit_duration in durations:
         exp1['deficit_params']['end_epoch'] = deficit_duration 
         exp1['num_epochs'] = deficit_duration + post_duration
-        exp1['output_dir'] = 'studies/blur/new_blur'
+        exp1['output_dir'] = 'studies/blur/blur_weights'
+
+        #exp1['save_epochs'] = [item for item in [deficit_duration-1, deficit_duration-1+post_duration] if item >= 0]
+        exp1['save_epochs'] = list(range(deficit_duration + post_duration))
+
 
         trainset, testset = None, None
 
@@ -70,14 +72,12 @@ if __name__ == '__main__' :
         opt = get_class('torch.optim', exp1['optimizer_name'])
         opt_params = exp1['optimizer_params']
 
-        scheuduler = get_class('torch.optim.lr_scheduler', exp1['scheduler_name'])
-        scheduler_params = exp1['scheduler_params']
 
         criterion_class = get_class('torch.nn', exp1['criterion_name'])
 
         model_wrapper = Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
-                                        criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=scheuduler,
-                                        scheduler_params=scheduler_params)
+                                        criterion_class=criterion_class, trainset=trainset, testset=testset,
+                                        )
 
 
         deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])

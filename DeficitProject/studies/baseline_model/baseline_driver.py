@@ -18,11 +18,13 @@ exp1 = {
     'nn_name' : 'AllCNN_WBN',
     'nn_params' : {'num_classes' : 10, 'hidden_dropout_prob' : 0.3, 'input_dropout_prob' : 0},
 
-    'optimizer_name' : 'SGD',
-    'optimizer_params' : {'lr' : 0.05, 'weight_decay':0.001, 'momentum' : 0.9},
+    #'optimizer_name' : 'SGD',
+    #'optimizer_params' : {'lr' : 0.05, 'weight_decay':0.001, 'momentum' : 0.9},
+    'optimizer_name' : 'Adam',
+    'optimizer_params' : {'lr' : 0.001},
 
-    'scheduler_name' : 'StepLR',
-    'scheduler_params' : {'step_size':1, 'gamma':0.97},
+    #'scheduler_name' : 'StepLR',
+    #'scheduler_params' : {'step_size':1, 'gamma':0.97},
 
     'criterion_name' : 'CrossEntropyLoss',
 
@@ -48,7 +50,7 @@ subset_size = 1
 #overall_duration = 520
 
 #overall_duration = 500
-overall_duration = 200
+overall_duration = 250
 
 iterations = 1
 
@@ -59,7 +61,7 @@ if __name__ == '__main__' :
         exp1['deficit_params']['end_epoch'] = 0
         exp1['deficit_params']['subset_size'] = subset_size
         exp1['num_epochs'] = overall_duration
-        exp1['output_dir'] = 'studies/baseline_model/baseline'
+        exp1['output_dir'] = 'studies/baseline_model/baseline_clay'
 
         trainset, testset = None, None
 
@@ -71,14 +73,14 @@ if __name__ == '__main__' :
         opt = get_class('torch.optim', exp1['optimizer_name'])
         opt_params = exp1['optimizer_params']
 
-        scheuduler = get_class('torch.optim.lr_scheduler', exp1['scheduler_name'])
-        scheduler_params = exp1['scheduler_params']
+        #scheuduler = get_class('torch.optim.lr_scheduler', exp1['scheduler_name'])
+        #scheduler_params = exp1['scheduler_params']
 
         criterion_class = get_class('torch.nn', exp1['criterion_name'])
 
         model_wrapper = Model(nn_class=nn_class, nn_params=nn_params, optimizer_class=opt, optimizer_params=opt_params,
-                                        criterion_class=criterion_class, trainset=trainset, testset=testset, scheduler_class=scheuduler,
-                                        scheduler_params=scheduler_params)
+                                        criterion_class=criterion_class, trainset=trainset, testset=testset,
+                                        )
 
 
         deficit_class = get_class(exp1['deficit_module'], exp1['deficit_name'])

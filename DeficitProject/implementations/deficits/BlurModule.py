@@ -10,11 +10,12 @@ import torch
 #from Trial import get_datasets
 
 class BlurTransform(nn.Module):
-    def __init__(self, start_epoch, end_epoch):
+    def __init__(self, start_epoch, end_epoch, transform_size=32):
         super(BlurTransform, self).__init__()
         self.start = start_epoch
         self.end = end_epoch
         self.current_epoch = 0
+        self.transform_size = transform_size
 
         self.layers = nn.Sequential(
             nn.MaxPool2d(4)
@@ -30,7 +31,7 @@ class BlurTransform(nn.Module):
             #print('transforming')
             #print(x.shape)
             x = torch.unsqueeze(x, 0)
-            x = F.interpolate(x, size=(32, 32), mode='nearest')
+            x = F.interpolate(x, size=(self.transform_size, self.transform_size), mode='nearest')
             x = x.squeeze(0)
             return x
         else :
@@ -74,7 +75,35 @@ class BlurDeficit(Deficit):
             self.trainset = torchvision.datasets.CIFAR10(root=root_dir, train=True, download=True, transform=self.transform_train)
             self.testset = torchvision.datasets.CIFAR10(root=root_dir, train=False, download=True, transform=self.transform_test)
 
-        else :
+        elif deficit_params['dataset'] == "Imagenet10":
+
+            self.deficit_params = deficit_params
+            dict = deficit_params
+            start_epoch = dict['start_epoch']
+            end_epoch = dict['end_epoch']
+            root_dir = dict['root_dir']
+            self.blur_transform = BlurTransform(start_epoch, end_epoch, transform_size=112)
+
+            self.transform_train = v2.Compose([
+                v2.Resize(256),
+                v2.RandomCrop(224, padding=4),
+                v2.RandomHorizontalFlip(),
+                #v2.ToTensor(),
+                #v2.functional.invert(),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                self.blur_transform,
+                v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+            ])
+
+            self.transform_test = v2.Compose([
+                v2.Resize(256),
+                v2.CenterCrop(224),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+            ])
+        else:
             raise Exception(f"Dataset {deficit_params['dataset']} not implemented")
 
     def update_deficit(self, epoch):

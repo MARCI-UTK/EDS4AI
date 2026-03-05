@@ -59,7 +59,7 @@ def gen_2d_embeddings(images):
     tsne = TSNE(n_components=2)
     tsne_results = tsne.fit_transform(pca_results)
 
-    return tsne_results
+    return tsne_results, image_embeddings
 
 
 #def gen_2d_embeddings(clip_embeddings):

@@ -305,18 +305,18 @@ class Experiment():
             if verbose == True:
                 #if((epoch)%50 == 0):
                         #print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                        #f" Train Loss: {train_loss:.4f} | Val Acc: {val_acc:.2f}% ")
+                        #f" Train Loss: {train_loss:.4f} | Val Acc: {val_acc:.2f}% ", end = "")
                         #print(f"   Time: {str(datetime.now())}")
 
-                        #print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                        #f" LR: {last_lr:.8f} "
-                        #f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
-                        #f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
-                        #print(f"   Time: {str(datetime.now())}")
+                        print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                        f" LR: {last_lr:.8f} "
+                        f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% "
+                        f" Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%" )
+                        print(f"   Time: {str(datetime.now())}")
                     
-                print(f"Epoch [{epoch+1}/{num_epochs}]: "
-                f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% ")
-                print(f"   Time: {str(datetime.now())}")
+                #print(f"Epoch [{epoch+1}/{num_epochs}]: "
+                #f" Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% ")
+                #print(f"   Time: {str(datetime.now())}")
 
             # Save model if save epoch
             if epoch in self.save_epochs:
